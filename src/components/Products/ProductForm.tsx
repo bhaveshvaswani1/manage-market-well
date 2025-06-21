@@ -1,8 +1,24 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Save, X } from 'lucide-react';
 
-const ProductForm = ({ product, onSave, onCancel }) => {
+interface Product {
+  id?: number;
+  name: string;
+  description: string;
+  costPrice: number;
+  sellingPrice: number;
+  stockQuantity: number;
+  category: string;
+  supplier: string;
+}
+
+interface ProductFormProps {
+  product?: Product;
+  onSave: (product: Product) => void;
+  onCancel: () => void;
+}
+
+const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     name: product?.name || '',
     description: product?.description || '',
@@ -13,7 +29,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     supplier: product?.supplier || '',
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const categories = [
     'Incense',
@@ -34,7 +50,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     'Other'
   ];
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -49,18 +65,18 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = 'Product name is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (!formData.costPrice || formData.costPrice <= 0) newErrors.costPrice = 'Valid cost price is required';
-    if (!formData.sellingPrice || formData.sellingPrice <= 0) newErrors.sellingPrice = 'Valid selling price is required';
-    if (!formData.stockQuantity || formData.stockQuantity < 0) newErrors.stockQuantity = 'Valid stock quantity is required';
+    if (!formData.costPrice || Number(formData.costPrice) <= 0) newErrors.costPrice = 'Valid cost price is required';
+    if (!formData.sellingPrice || Number(formData.sellingPrice) <= 0) newErrors.sellingPrice = 'Valid selling price is required';
+    if (!formData.stockQuantity || Number(formData.stockQuantity) < 0) newErrors.stockQuantity = 'Valid stock quantity is required';
     if (!formData.category) newErrors.category = 'Category is required';
     if (!formData.supplier) newErrors.supplier = 'Supplier is required';
 
-    if (formData.costPrice && formData.sellingPrice && parseFloat(formData.sellingPrice) <= parseFloat(formData.costPrice)) {
+    if (formData.costPrice && formData.sellingPrice && parseFloat(formData.sellingPrice.toString()) <= parseFloat(formData.costPrice.toString())) {
       newErrors.sellingPrice = 'Selling price must be higher than cost price';
     }
 
@@ -68,20 +84,20 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       onSave({
         ...formData,
-        costPrice: parseFloat(formData.costPrice),
-        sellingPrice: parseFloat(formData.sellingPrice),
-        stockQuantity: parseInt(formData.stockQuantity),
+        costPrice: parseFloat(formData.costPrice.toString()),
+        sellingPrice: parseFloat(formData.sellingPrice.toString()),
+        stockQuantity: parseInt(formData.stockQuantity.toString()),
       });
     }
   };
 
   const profitMargin = formData.costPrice && formData.sellingPrice ? 
-    (((parseFloat(formData.sellingPrice) - parseFloat(formData.costPrice)) / parseFloat(formData.costPrice)) * 100).toFixed(1) : 0;
+    (((parseFloat(formData.sellingPrice.toString()) - parseFloat(formData.costPrice.toString())) / parseFloat(formData.costPrice.toString())) * 100).toFixed(1) : 0;
 
   return (
     <div className="space-y-6">
@@ -236,7 +252,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-blue-800">Profit Margin:</span>
                     <span className="text-lg font-bold text-blue-600">
-                      {profitMargin}% (${(parseFloat(formData.sellingPrice) - parseFloat(formData.costPrice)).toFixed(2)})
+                      {profitMargin}% (${(parseFloat(formData.sellingPrice.toString()) - parseFloat(formData.costPrice.toString())).toFixed(2)})
                     </span>
                   </div>
                 </div>

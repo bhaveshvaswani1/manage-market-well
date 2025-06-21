@@ -1,8 +1,22 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Save, X } from 'lucide-react';
 
-const CustomerForm = ({ customer, onSave, onCancel }) => {
+interface Customer {
+  id?: number;
+  name: string;
+  companyName: string;
+  email: string;
+  phone: string;
+  address: string;
+}
+
+interface CustomerFormProps {
+  customer?: Customer;
+  onSave: (customer: Customer) => void;
+  onCancel: () => void;
+}
+
+const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     name: customer?.name || '',
     companyName: customer?.companyName || '',
@@ -11,9 +25,9 @@ const CustomerForm = ({ customer, onSave, onCancel }) => {
     address: customer?.address || '',
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -28,8 +42,8 @@ const CustomerForm = ({ customer, onSave, onCancel }) => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = 'Customer name is required';
     if (!formData.companyName.trim()) newErrors.companyName = 'Company name is required';
@@ -45,7 +59,7 @@ const CustomerForm = ({ customer, onSave, onCancel }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       onSave(formData);

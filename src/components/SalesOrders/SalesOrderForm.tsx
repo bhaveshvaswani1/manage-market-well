@@ -1,8 +1,29 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Save, X, Plus, Minus } from 'lucide-react';
 
-const SalesOrderForm = ({ order, onSave, onCancel }) => {
+interface OrderItem {
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
+interface SalesOrder {
+  id?: number;
+  customerName: string;
+  companyName: string;
+  orderDate: string;
+  status: string;
+  items: OrderItem[];
+  totalAmount?: number;
+}
+
+interface SalesOrderFormProps {
+  order?: SalesOrder;
+  onSave: (order: SalesOrder) => void;
+  onCancel: () => void;
+}
+
+const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     customerName: order?.customerName || '',
     companyName: order?.companyName || '',
@@ -11,7 +32,7 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
     items: order?.items || [{ productName: '', quantity: 1, price: 0 }],
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Mock data for dropdowns
   const customers = [
@@ -30,7 +51,7 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
 
   const statusOptions = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     if (name === 'customerName') {
@@ -56,7 +77,7 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
     }
   };
 
-  const handleItemChange = (index, field, value) => {
+  const handleItemChange = (index: number, field: keyof OrderItem, value: string | number) => {
     const newItems = [...formData.items];
     newItems[index] = { ...newItems[index], [field]: value };
     
@@ -81,7 +102,7 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
     }));
   };
 
-  const removeItem = (index) => {
+  const removeItem = (index: number) => {
     if (formData.items.length > 1) {
       setFormData(prev => ({
         ...prev,
@@ -90,14 +111,14 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
     }
   };
 
-  const calculateTotal = () => {
+  const calculateTotal = (): number => {
     return formData.items.reduce((total, item) => {
       return total + (item.quantity * item.price);
     }, 0);
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
     if (!formData.customerName.trim()) newErrors.customerName = 'Customer is required';
     if (!formData.orderDate) newErrors.orderDate = 'Order date is required';
@@ -114,7 +135,7 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       onSave({
@@ -122,8 +143,8 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
         totalAmount: calculateTotal(),
         items: formData.items.map(item => ({
           ...item,
-          quantity: parseInt(item.quantity),
-          price: parseFloat(item.price)
+          quantity: parseInt(item.quantity.toString()),
+          price: parseFloat(item.price.toString())
         }))
       });
     }
@@ -263,7 +284,7 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
                     <input
                       type="number"
                       value={item.quantity}
-                      onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                      onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
                       min="1"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
                         errors[`item_${index}_quantity`] ? 'border-red-300' : 'border-gray-300'
@@ -281,7 +302,7 @@ const SalesOrderForm = ({ order, onSave, onCancel }) => {
                     <input
                       type="number"
                       value={item.price}
-                      onChange={(e) => handleItemChange(index, 'price', e.target.value)}
+                      onChange={(e) => handleItemChange(index, 'price', Number(e.target.value))}
                       step="0.01"
                       min="0"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
