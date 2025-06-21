@@ -40,7 +40,7 @@ const InvoiceList = () => {
     },
   ];
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'Paid': return 'bg-green-100 text-green-800';
       case 'Pending': return 'bg-yellow-100 text-yellow-800';
@@ -49,12 +49,12 @@ const InvoiceList = () => {
     }
   };
 
-  const handleDownloadPDF = (invoice) => {
+  const handleDownloadPDF = (invoice: any) => {
     console.log('Download PDF for invoice:', invoice.invoiceNumber);
     // This would trigger PDF generation and download
   };
 
-  const handlePreview = (invoice) => {
+  const handlePreview = (invoice: any) => {
     console.log('Preview invoice:', invoice.invoiceNumber);
     // This would open invoice preview modal
   };
@@ -139,9 +139,7 @@ const InvoiceList = () => {
                       <div className="font-medium text-gray-900">{invoice.customerName}</div>
                       <div className="text-sm text-gray-500">{invoice.companyName}</div>
                     </div>
-                  </t
-
-d>
+                  </td>
                   <td className="py-4 px-6">
                     <div className="text-gray-900">{invoice.orderNumber}</div>
                   </td>
