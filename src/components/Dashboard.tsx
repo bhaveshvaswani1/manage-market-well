@@ -1,7 +1,6 @@
-
 import React from 'react';
-import { Users, Package, ShoppingCart, FileText, DollarSign, TrendingUp } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
+import { Users, Package, ShoppingCart, FileText, DollarSign, TrendingUp, Building2 } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from 'recharts';
 
 const Dashboard = () => {
   // Mock data for incense sales
@@ -32,10 +31,21 @@ const Dashboard = () => {
     { product: 'Phool', sold: 95, revenue: 1709 },
   ];
 
+  // Area chart data for revenue trends
+  const revenueAreaData = [
+    { month: 'Jan', revenue: 4000, profit: 1200 },
+    { month: 'Feb', revenue: 3000, profit: 900 },
+    { month: 'Mar', revenue: 5000, profit: 1500 },
+    { month: 'Apr', revenue: 4500, profit: 1350 },
+    { month: 'May', revenue: 6000, profit: 1800 },
+    { month: 'Jun', revenue: 5500, profit: 1650 },
+  ];
+
   // Correct counts
   const totalProducts = 5;
   const totalStock = 150 + 120 + 89 + 75 + 95;
-  const totalCustomers = 4; // Fixed from mock data
+  const totalCustomers = 4;
+  const totalSuppliers = 3; // Added suppliers count
 
   const stats = [
     {
@@ -65,6 +75,13 @@ const Dashboard = () => {
       icon: Users,
       color: 'bg-orange-500',
       bgColor: 'bg-orange-100',
+    },
+    {
+      title: 'Total Suppliers',
+      value: totalSuppliers.toString(),
+      icon: Building2,
+      color: 'bg-indigo-500',
+      bgColor: 'bg-indigo-100',
     },
     {
       title: 'Monthly Revenue',
@@ -125,7 +142,7 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
@@ -205,21 +222,38 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Orders */}
+        {/* Revenue Area Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Revenue & Profit Trends</h2>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={revenueAreaData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey="revenue" stackId="1" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.6} name="Revenue ($)" />
+                <Area type="monotone" dataKey="profit" stackId="2" stroke="#10B981" fill="#10B981" fillOpacity={0.6} name="Profit ($)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Recent Orders */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
             <span className="text-sm text-gray-500">Last 3 orders</span>
           </div>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div>
+              <div key={order.id} className="flex flex-col p-4 bg-gray-50 rounded-lg">
+                <div className="mb-2">
                   <p className="font-medium text-gray-900">{order.id}</p>
                   <p className="text-sm text-gray-600">{order.customer}</p>
                   <p className="text-xs text-gray-500">{new Date(order.date).toLocaleDateString()}</p>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center justify-between">
                   <p className="font-bold text-green-600">${order.amount.toFixed(2)}</p>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                     {order.status}
@@ -234,7 +268,7 @@ const Dashboard = () => {
       {/* Quick Actions */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <button className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
             <Package className="w-6 h-6 text-blue-600" />
             <span className="font-medium text-blue-900">Add Product</span>
@@ -246,6 +280,10 @@ const Dashboard = () => {
           <button className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
             <Users className="w-6 h-6 text-purple-600" />
             <span className="font-medium text-purple-900">Add Customer</span>
+          </button>
+          <button className="flex items-center space-x-3 p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
+            <Building2 className="w-6 h-6 text-indigo-600" />
+            <span className="font-medium text-indigo-900">Add Supplier</span>
           </button>
           <button className="flex items-center space-x-3 p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors duration-200">
             <FileText className="w-6 h-6 text-orange-600" />
