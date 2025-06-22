@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Users, Package, ShoppingCart, FileText, DollarSign, TrendingUp } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
 
 const Dashboard = () => {
   // Mock data for incense sales
@@ -13,9 +13,29 @@ const Dashboard = () => {
     { name: 'Phool', value: 5, color: '#3B82F6' },
   ];
 
-  // Correct product count (5 incense products)
+  // Monthly sales trend data
+  const monthlyTrendData = [
+    { month: 'Jan', sales: 4000, orders: 24 },
+    { month: 'Feb', sales: 3000, orders: 18 },
+    { month: 'Mar', sales: 5000, orders: 32 },
+    { month: 'Apr', sales: 4500, orders: 28 },
+    { month: 'May', sales: 6000, orders: 38 },
+    { month: 'Jun', sales: 5500, orders: 35 },
+  ];
+
+  // Product performance data
+  const productPerformanceData = [
+    { product: 'Lavender', sold: 150, revenue: 2850 },
+    { product: 'Rose', sold: 120, revenue: 1800 },
+    { product: 'Sandalwood', sold: 89, revenue: 2044 },
+    { product: 'Jasmine', sold: 75, revenue: 1462 },
+    { product: 'Phool', sold: 95, revenue: 1709 },
+  ];
+
+  // Correct counts
   const totalProducts = 5;
-  const totalStock = 150 + 120 + 89 + 75 + 95; // Sum of all incense stock
+  const totalStock = 150 + 120 + 89 + 75 + 95;
+  const totalCustomers = 4; // Fixed from mock data
 
   const stats = [
     {
@@ -41,7 +61,7 @@ const Dashboard = () => {
     },
     {
       title: 'Total Customers',
-      value: '48',
+      value: totalCustomers.toString(),
       icon: Users,
       color: 'bg-orange-500',
       bgColor: 'bg-orange-100',
@@ -124,7 +144,7 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* Charts and Recent Activity */}
+      {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Incense Sales Pie Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -148,6 +168,39 @@ const Dashboard = () => {
                 <Tooltip formatter={(value) => [`${value}%`, 'Sales Share']} />
                 <Legend />
               </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Product Performance Bar Chart */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Product Performance</h2>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={productPerformanceData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="product" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="sold" fill="#8B5CF6" name="Units Sold" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Monthly Sales Trend Line Chart */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Monthly Sales Trend</h2>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={monthlyTrendData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="sales" stroke="#10B981" strokeWidth={2} name="Sales ($)" />
+                <Line type="monotone" dataKey="orders" stroke="#3B82F6" strokeWidth={2} name="Orders" />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>

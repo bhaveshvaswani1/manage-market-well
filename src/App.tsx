@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./components/Dashboard";
 import Products from "./components/Products/ProductList";
 import Customers from "./components/Customers/CustomerList";
+import Suppliers from "./components/Suppliers/SupplierList";
 import SalesOrders from "./components/SalesOrders/SalesOrderList";
 import Invoices from "./components/Invoices/InvoiceList";
 import NotFound from "./pages/NotFound";
@@ -26,6 +27,7 @@ const App = () => (
               <Route path="/" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/customers" element={<Customers />} />
+              <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/sales-orders" element={<SalesOrders />} />
               <Route path="/invoices" element={<Invoices />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

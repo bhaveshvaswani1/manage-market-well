@@ -27,8 +27,13 @@ interface InvoicePreviewProps {
 }
 
 const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => {
+  const subtotal = invoice.items?.reduce((sum, item) => sum + (item.quantity * item.price), 0) || invoice.amount;
+  const discount = subtotal * 0.1; // 10% discount
+  const cbmTraspaso = 20.00;
+  const transporte = 0.00;
+  const totalFOB = subtotal - discount + cbmTraspaso + transporte;
+
   const handleDownload = () => {
-    // Create a new window with the invoice content for printing/PDF
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(`
@@ -38,30 +43,34 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
           <title>Invoice ${invoice.invoiceNumber}</title>
           <style>
             body { font-family: Arial, sans-serif; margin: 20px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .company-info { text-align: right; margin-bottom: 20px; }
+            .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+            .company-info { flex: 1; }
+            .logo { width: 80px; height: 80px; border: 2px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
             .invoice-info { margin-bottom: 20px; }
             .bill-to { margin-bottom: 20px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
             th, td { border: 1px solid #000; padding: 8px; text-align: left; }
             th { background-color: #f0f0f0; }
-            .total { text-align: right; font-weight: bold; margin-top: 20px; }
-            .terms { margin-top: 30px; font-size: 12px; }
-            .signature { text-align: center; margin-top: 40px; font-size: 12px; }
+            .totals { float: right; width: 300px; margin-top: 20px; }
+            .totals table { border: none; }
+            .totals td { border: none; padding: 5px; }
+            .final-total { font-weight: bold; font-size: 16px; }
           </style>
         </head>
         <body>
           <div class="header">
-            <h1>SKIF INTERNATIONAL PANAMA, S.A.</h1>
-            <p><em>AUTENTICO INCIENSO DE LA INDIA</em></p>
-          </div>
-          
-          <div class="company-info">
-            <p>Calle 15 y 16 Edificio Aeroportuario</p>
-            <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
-            <p>R.U.C. 155724460-22022 DV85</p>
-            <p>Teléfono (507) 66756877</p>
-            <p>Email: skifinternationalpanama@gmail.com</p>
+            <div class="company-info">
+              <h2>SKIF INTERNATIONAL PANAMA, S.A.</h2>
+              <p><em>AUTENTICO INCIENSO DE LA INDIA</em></p>
+              <p>Calle 15 y 16 Edificio Aeroportuario</p>
+              <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
+              <p>R.U.C. 155724460-22022 DV85</p>
+              <p>Teléfono (507) 66756877</p>
+              <p>Email: skifinternationalpanama@gmail.com</p>
+            </div>
+            <div class="logo">
+              <span style="font-weight: bold; color: #d32f2f;">AARTI</span>
+            </div>
           </div>
 
           <h2>INVOICE</h2>
@@ -70,17 +79,14 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
             <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
             <p><strong>Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
             <p><strong>Order ID:</strong> ${invoice.orderNumber}</p>
-            <p><strong>Order Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
           </div>
 
           <div class="bill-to">
             <p><strong>Bill To:</strong></p>
             <p>${invoice.customerName}</p>
             <p>${invoice.companyName}</p>
-            <p>+517-2982323</p>
           </div>
 
-          <h3>Order Items</h3>
           <table>
             <thead>
               <tr>
@@ -100,31 +106,21 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
                   <td>$${item.price.toFixed(2)}</td>
                   <td>$${(item.quantity * item.price).toFixed(2)}</td>
                 </tr>
-              `).join('') || `
-                <tr>
-                  <td>1</td>
-                  <td>Incense Products</td>
-                  <td>1</td>
-                  <td>$${invoice.amount.toFixed(2)}</td>
-                  <td>$${invoice.amount.toFixed(2)}</td>
-                </tr>
-              `}
+              `).join('') || ''}
             </tbody>
           </table>
 
-          <div class="total">
-            <p>Subtotal: $${invoice.amount.toFixed(2)}</p>
-            <h3>Total Amount: $${invoice.amount.toFixed(2)}</h3>
+          <div class="totals">
+            <table>
+              <tr><td>SUB-TOTAL</td><td>$${subtotal.toFixed(2)}</td></tr>
+              <tr><td>PESO DESCUENTO %</td><td>-$${discount.toFixed(2)}</td></tr>
+              <tr><td>CBM. TRASPASO</td><td>$${cbmTraspaso.toFixed(2)}</td></tr>
+              <tr><td>TRANSPORTE</td><td>$${transporte.toFixed(2)}</td></tr>
+              <tr class="final-total"><td>TOTAL FOB</td><td>$${totalFOB.toFixed(2)}</td></tr>
+            </table>
           </div>
 
-          <div class="terms">
-            <h4>Terms & Conditions:</h4>
-            <p>1. Payment due within 30 days.</p>
-            <p>2. Please quote the invoice number when making payments.</p>
-            <p>3. Goods once sold will not be taken back.</p>
-          </div>
-
-          <div class="signature">
+          <div style="clear: both; margin-top: 50px; text-align: center; font-size: 12px;">
             <p>This is a computer-generated invoice and does not require a signature.</p>
           </div>
         </body>
@@ -160,19 +156,25 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
 
         {/* Invoice Content */}
         <div className="p-8 bg-white">
-          {/* Company Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-red-600 font-bold text-xl">A</span>
+          {/* Company Header with Logo */}
+          <div className="flex justify-between items-start mb-8">
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">SKIF INTERNATIONAL PANAMA, S.A.</h1>
+              <p className="text-gray-600 italic mb-4">AUTENTICO INCIENSO DE LA INDIA</p>
+              <div className="text-sm text-gray-600">
+                <p>Calle 15 y 16 Edificio Aeroportuario</p>
+                <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
+                <p>R.U.C. 155724460-22022 DV85</p>
+                <p>Teléfono (507) 66756877</p>
+                <p>Email: skifinternationalpanama@gmail.com</p>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">SKIF INTERNATIONAL PANAMA, S.A.</h1>
-            <p className="text-gray-600 italic mb-4">AUTENTICO INCIENSO DE LA INDIA</p>
-            <div className="text-sm text-gray-600 text-right">
-              <p>Calle 15 y 16 Edificio Aeroportuario</p>
-              <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
-              <p>R.U.C. 155724460-22022 DV85</p>
-              <p>Teléfono (507) 66756877</p>
-              <p>Email: skifinternationalpanama@gmail.com</p>
+            <div className="w-20 h-20 border-2 border-gray-800 rounded-full flex items-center justify-center bg-white">
+              <img 
+                src="/lovable-uploads/2bb763c9-a626-4d65-aea8-b3b41d61cb8f.png" 
+                alt="AARTI Logo" 
+                className="w-16 h-16 object-contain"
+              />
             </div>
           </div>
 
@@ -186,7 +188,6 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
                 <p><strong>Invoice #:</strong> {invoice.invoiceNumber}</p>
                 <p><strong>Date:</strong> {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
                 <p><strong>Order ID:</strong> {invoice.orderNumber}</p>
-                <p><strong>Order Date:</strong> {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
               </div>
             </div>
 
@@ -195,14 +196,12 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
               <div className="space-y-1">
                 <p className="font-medium">{invoice.customerName}</p>
                 <p>{invoice.companyName}</p>
-                <p>+517-2982323</p>
               </div>
             </div>
           </div>
 
           {/* Order Items Table */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-300">
                 <thead className="bg-gray-100">
@@ -237,19 +236,32 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
             </div>
           </div>
 
-          {/* Total */}
-          <div className="text-right mb-8">
-            <p className="text-lg">Subtotal: ${invoice.amount.toFixed(2)}</p>
-            <h3 className="text-2xl font-bold text-gray-900">Total Amount: ${invoice.amount.toFixed(2)}</h3>
-          </div>
-
-          {/* Terms */}
-          <div className="mb-8">
-            <h4 className="font-semibold text-gray-900 mb-2">Terms & Conditions:</h4>
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>1. Payment due within 30 days.</p>
-              <p>2. Please quote the invoice number when making payments.</p>
-              <p>3. Goods once sold will not be taken back.</p>
+          {/* Totals */}
+          <div className="flex justify-end mb-8">
+            <div className="w-80">
+              <div className="space-y-2 text-right">
+                <div className="flex justify-between">
+                  <span>SUB-TOTAL:</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>PESO DESCUENTO %:</span>
+                  <span>-${discount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>CBM. TRASPASO:</span>
+                  <span>${cbmTraspaso.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>TRANSPORTE:</span>
+                  <span>${transporte.toFixed(2)}</span>
+                </div>
+                <hr className="my-2" />
+                <div className="flex justify-between text-lg font-bold">
+                  <span>TOTAL FOB:</span>
+                  <span>${totalFOB.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
 
