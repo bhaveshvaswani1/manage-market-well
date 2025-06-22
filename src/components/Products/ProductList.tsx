@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
 import ProductForm from './ProductForm';
@@ -8,12 +7,12 @@ const ProductList = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock product data
+  // Mock product data - Only incense sticks
   const [products, setProducts] = useState([
     {
       id: 1,
       name: 'Lavender Incense Sticks',
-      description: 'Premium quality lavender scented incense sticks',
+      description: 'Premium quality lavender scented incense sticks for relaxation',
       costPrice: 12.50,
       sellingPrice: 18.99,
       stockQuantity: 150,
@@ -22,33 +21,43 @@ const ProductList = () => {
     },
     {
       id: 2,
-      name: 'Wooden Handicraft Set',
-      description: 'Hand-carved wooden decorative items',
-      costPrice: 25.00,
-      sellingPrice: 45.00,
-      stockQuantity: 35,
-      category: 'Handicrafts',
-      supplier: 'Artisan Crafts Ltd.',
+      name: 'Rose Incense Sticks',
+      description: 'Elegant rose fragrant incense sticks for romantic ambiance',
+      costPrice: 10.00,
+      sellingPrice: 15.00,
+      stockQuantity: 120,
+      category: 'Incense',
+      supplier: 'Floral Scents Ltd.',
     },
     {
       id: 3,
-      name: 'Scented Candles Collection',
-      description: 'Variety pack of scented candles',
-      costPrice: 8.75,
-      sellingPrice: 15.99,
+      name: 'Phool Incense Sticks',
+      description: 'Traditional flower blend incense sticks for spiritual practices',
+      costPrice: 11.25,
+      sellingPrice: 17.99,
       stockQuantity: 89,
-      category: 'Candles',
-      supplier: 'Candle Works Inc.',
+      category: 'Incense',
+      supplier: 'Sacred Aromas Inc.',
     },
     {
       id: 4,
-      name: 'Bamboo Wind Chimes',
-      description: 'Natural bamboo wind chimes for garden decoration',
+      name: 'Sandalwood Incense Sticks',
+      description: 'Pure sandalwood incense sticks for meditation and peace',
       costPrice: 15.25,
-      sellingPrice: 28.50,
-      stockQuantity: 42,
-      category: 'Decoratives',
-      supplier: 'Nature Craft Co.',
+      sellingPrice: 22.99,
+      stockQuantity: 75,
+      category: 'Incense',
+      supplier: 'Premium Woods Co.',
+    },
+    {
+      id: 5,
+      name: 'Jasmine Incense Sticks',
+      description: 'Sweet jasmine scented incense sticks for calming atmosphere',
+      costPrice: 13.00,
+      sellingPrice: 19.50,
+      stockQuantity: 95,
+      category: 'Incense',
+      supplier: 'Exotic Fragrances Ltd.',
     },
   ]);
 
@@ -104,15 +113,15 @@ const ProductList = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600 mt-1">Manage your product catalog</p>
+          <h1 className="text-3xl font-bold text-gray-900">Incense Products</h1>
+          <p className="text-gray-600 mt-1">Manage your incense stick catalog</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Product</span>
+          <span>Add Incense Product</span>
         </button>
       </div>
 
@@ -122,7 +131,7 @@ const ProductList = () => {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder="Search products by name or category..."
+            placeholder="Search incense products by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -141,12 +150,12 @@ const ProductList = () => {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Package className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Package className="w-6 h-6 text-purple-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 text-lg truncate">{product.name}</h3>
-                      <p className="text-sm text-gray-500">{product.category}</p>
+                      <p className="text-sm text-purple-600">{product.category}</p>
                     </div>
                   </div>
                   <div className="flex space-x-1">
@@ -201,9 +210,9 @@ const ProductList = () => {
       {filteredProducts.length === 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
           <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No incense products found</h3>
           <p className="text-gray-600 mb-6">
-            {searchTerm ? 'Try adjusting your search terms' : 'Get started by adding your first product'}
+            {searchTerm ? 'Try adjusting your search terms' : 'Get started by adding your first incense product'}
           </p>
           {!searchTerm && (
             <button
@@ -211,7 +220,7 @@ const ProductList = () => {
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 mx-auto transition-colors duration-200"
             >
               <Plus className="w-4 h-4" />
-              <span>Add Product</span>
+              <span>Add Incense Product</span>
             </button>
           )}
         </div>

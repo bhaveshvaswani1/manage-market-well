@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, Search, Eye, Edit, FileText, ShoppingCart } from 'lucide-react';
 import SalesOrderForm from './SalesOrderForm';
@@ -20,7 +19,7 @@ const SalesOrderList = () => {
       totalAmount: 245.00,
       items: [
         { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
-        { productName: 'Wooden Handicraft Set', quantity: 2, price: 45.00 },
+        { productName: 'Rose Incense Sticks', quantity: 2, price: 15.00 },
       ]
     },
     {
@@ -32,8 +31,8 @@ const SalesOrderList = () => {
       status: 'Confirmed',
       totalAmount: 189.50,
       items: [
-        { productName: 'Scented Candles Collection', quantity: 3, price: 15.99 },
-        { productName: 'Bamboo Wind Chimes', quantity: 4, price: 28.50 },
+        { productName: 'Sandalwood Incense Sticks', quantity: 3, price: 22.99 },
+        { productName: 'Jasmine Incense Sticks', quantity: 4, price: 19.50 },
       ]
     },
     {
@@ -45,9 +44,8 @@ const SalesOrderList = () => {
       status: 'Shipped',
       totalAmount: 567.25,
       items: [
-        { productName: 'Lavender Incense Sticks', quantity: 10, price: 18.99 },
-        { productName: 'Wooden Handicraft Set', quantity: 5, price: 45.00 },
-        { productName: 'Scented Candles Collection', quantity: 8, price: 15.99 },
+        { productName: 'Phool Incense Sticks', quantity: 10, price: 17.99 },
+        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
       ]
     },
     {
@@ -59,17 +57,20 @@ const SalesOrderList = () => {
       status: 'Delivered',
       totalAmount: 123.75,
       items: [
-        { productName: 'Bamboo Wind Chimes', quantity: 2, price: 28.50 },
-        { productName: 'Scented Candles Collection', quantity: 4, price: 15.99 },
+        { productName: 'Rose Incense Sticks', quantity: 2, price: 15.00 },
+        { productName: 'Sandalwood Incense Sticks', quantity: 4, price: 22.99 },
       ]
     },
   ]);
 
-  const filteredOrders = salesOrders.filter(order =>
-    order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.companyName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOrders = salesOrders.filter(order => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      (order.orderNumber && order.orderNumber.toLowerCase().includes(searchLower)) ||
+      (order.customerName && order.customerName.toLowerCase().includes(searchLower)) ||
+      (order.companyName && order.companyName.toLowerCase().includes(searchLower))
+    );
+  });
 
   const getStatusColor = (status) => {
     switch (status) {

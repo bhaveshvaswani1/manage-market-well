@@ -1,10 +1,32 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { FileText, Download, Eye, Calendar, DollarSign } from 'lucide-react';
+import InvoicePreview from './InvoicePreview';
+
+interface InvoiceItem {
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
+interface Invoice {
+  id: number;
+  invoiceNumber: string;
+  customerName: string;
+  companyName: string;
+  orderNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  amount: number;
+  status: string;
+  items?: InvoiceItem[];
+}
 
 const InvoiceList = () => {
-  // Mock invoice data
-  const invoices = [
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  // Mock invoice data with items
+  const invoices: Invoice[] = [
     {
       id: 1,
       invoiceNumber: 'INV-001-2024',
@@ -15,6 +37,10 @@ const InvoiceList = () => {
       dueDate: '2024-07-20',
       amount: 245.00,
       status: 'Paid',
+      items: [
+        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
+        { productName: 'Rose Incense Sticks', quantity: 2, price: 45.00 },
+      ]
     },
     {
       id: 2,
@@ -26,6 +52,10 @@ const InvoiceList = () => {
       dueDate: '2024-07-19',
       amount: 189.50,
       status: 'Pending',
+      items: [
+        { productName: 'Sandalwood Incense Sticks', quantity: 3, price: 22.99 },
+        { productName: 'Jasmine Incense Sticks', quantity: 4, price: 19.50 },
+      ]
     },
     {
       id: 3,
@@ -37,6 +67,11 @@ const InvoiceList = () => {
       dueDate: '2024-07-18',
       amount: 567.25,
       status: 'Overdue',
+      items: [
+        { productName: 'Phool Incense Sticks', quantity: 10, price: 17.99 },
+        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
+        { productName: 'Rose Incense Sticks', quantity: 8, price: 15.99 },
+      ]
     },
   ];
 
@@ -49,14 +84,116 @@ const InvoiceList = () => {
     }
   };
 
-  const handleDownloadPDF = (invoice: any) => {
-    console.log('Download PDF for invoice:', invoice.invoiceNumber);
-    // This would trigger PDF generation and download
+  const handleDownloadPDF = (invoice: Invoice) => {
+    // Create a new window with the invoice content for printing/PDF
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invoice ${invoice.invoiceNumber}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .company-info { text-align: right; margin-bottom: 20px; }
+            .invoice-info { margin-bottom: 20px; }
+            .bill-to { margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+            th { background-color: #f0f0f0; }
+            .total { text-align: right; font-weight: bold; margin-top: 20px; }
+            .terms { margin-top: 30px; font-size: 12px; }
+            .signature { text-align: center; margin-top: 40px; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>SKIF INTERNATIONAL PANAMA, S.A.</h1>
+            <p><em>AUTENTICO INCIENSO DE LA INDIA</em></p>
+          </div>
+          
+          <div class="company-info">
+            <p>Calle 15 y 16 Edificio Aeroportuario</p>
+            <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
+            <p>R.U.C. 155724460-22022 DV85</p>
+            <p>Teléfono (507) 66756877</p>
+            <p>Email: skifinternationalpanama@gmail.com</p>
+          </div>
+
+          <h2>INVOICE</h2>
+          
+          <div class="invoice-info">
+            <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+            <p><strong>Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
+            <p><strong>Order ID:</strong> ${invoice.orderNumber}</p>
+            <p><strong>Order Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
+          </div>
+
+          <div class="bill-to">
+            <p><strong>Bill To:</strong></p>
+            <p>${invoice.customerName}</p>
+            <p>${invoice.companyName}</p>
+            <p>+517-2982323</p>
+          </div>
+
+          <h3>Order Items</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price ($)</th>
+                <th>Total ($)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${invoice.items?.map((item, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${item.productName}</td>
+                  <td>${item.quantity}</td>
+                  <td>$${item.price.toFixed(2)}</td>
+                  <td>$${(item.quantity * item.price).toFixed(2)}</td>
+                </tr>
+              `).join('') || `
+                <tr>
+                  <td>1</td>
+                  <td>Incense Products</td>
+                  <td>1</td>
+                  <td>$${invoice.amount.toFixed(2)}</td>
+                  <td>$${invoice.amount.toFixed(2)}</td>
+                </tr>
+              `}
+            </tbody>
+          </table>
+
+          <div class="total">
+            <p>Subtotal: $${invoice.amount.toFixed(2)}</p>
+            <h3>Total Amount: $${invoice.amount.toFixed(2)}</h3>
+          </div>
+
+          <div class="terms">
+            <h4>Terms & Conditions:</h4>
+            <p>1. Payment due within 30 days.</p>
+            <p>2. Please quote the invoice number when making payments.</p>
+            <p>3. Goods once sold will not be taken back.</p>
+          </div>
+
+          <div class="signature">
+            <p>This is a computer-generated invoice and does not require a signature.</p>
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
   };
 
-  const handlePreview = (invoice: any) => {
-    console.log('Preview invoice:', invoice.invoiceNumber);
-    // This would open invoice preview modal
+  const handlePreview = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
   };
 
   return (
@@ -196,6 +333,14 @@ const InvoiceList = () => {
           </div>
         )}
       </div>
+
+      {/* Invoice Preview Modal */}
+      {selectedInvoice && (
+        <InvoicePreview
+          invoice={selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+        />
+      )}
     </div>
   );
 };

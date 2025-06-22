@@ -42,11 +42,13 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
     { name: 'Emma Davis', company: 'Davis Retail Solutions' },
   ];
 
+  // Updated products - only incense sticks
   const products = [
     { name: 'Lavender Incense Sticks', price: 18.99 },
-    { name: 'Wooden Handicraft Set', price: 45.00 },
-    { name: 'Scented Candles Collection', price: 15.99 },
-    { name: 'Bamboo Wind Chimes', price: 28.50 },
+    { name: 'Rose Incense Sticks', price: 15.00 },
+    { name: 'Phool Incense Sticks', price: 17.99 },
+    { name: 'Sandalwood Incense Sticks', price: 22.99 },
+    { name: 'Jasmine Incense Sticks', price: 19.50 },
   ];
 
   const statusOptions = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
@@ -165,7 +167,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
             {order ? 'Edit Sales Order' : 'Create Sales Order'}
           </h1>
           <p className="text-gray-600 mt-1">
-            {order ? 'Update order information' : 'Create a new sales order'}
+            {order ? 'Update order information' : 'Create a new sales order for incense products'}
           </p>
         </div>
       </div>
@@ -240,7 +242,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
           {/* Order Items */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Order Items</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Incense Order Items</h3>
               <button
                 type="button"
                 onClick={addItem}
@@ -256,7 +258,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
                 <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="md:col-span-5">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product *
+                      Incense Product *
                     </label>
                     <select
                       value={item.productName}
@@ -265,7 +267,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
                         errors[`item_${index}_product`] ? 'border-red-300' : 'border-gray-300'
                       }`}
                     >
-                      <option value="">Select product</option>
+                      <option value="">Select incense product</option>
                       {products.map(product => (
                         <option key={product.name} value={product.name}>
                           {product.name}

@@ -1,112 +1,122 @@
 
 import React from 'react';
-import { 
-  TrendingUp, 
-  Package, 
-  Users, 
-  ShoppingCart, 
-  DollarSign,
-  AlertTriangle
-} from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Users, Package, ShoppingCart, FileText, DollarSign, TrendingUp } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const Dashboard = () => {
-  // Mock data for charts
-  const revenueData = [
-    { month: 'Jan', revenue: 4500 },
-    { month: 'Feb', revenue: 5200 },
-    { month: 'Mar', revenue: 4800 },
-    { month: 'Apr', revenue: 6100 },
-    { month: 'May', revenue: 7200 },
-    { month: 'Jun', revenue: 8500 },
+  // Mock data for incense sales
+  const incenseSalesData = [
+    { name: 'Lavender', value: 35, color: '#8B5CF6' },
+    { name: 'Rose', value: 25, color: '#EC4899' },
+    { name: 'Sandalwood', value: 20, color: '#F59E0B' },
+    { name: 'Jasmine', value: 15, color: '#10B981' },
+    { name: 'Phool', value: 5, color: '#3B82F6' },
   ];
 
-  const productSalesData = [
-    { product: 'Incense Sticks', sales: 245 },
-    { product: 'Handicrafts', sales: 186 },
-    { product: 'Candles', sales: 132 },
-    { product: 'Decoratives', sales: 98 },
-  ];
+  // Correct product count (5 incense products)
+  const totalProducts = 5;
+  const totalStock = 150 + 120 + 89 + 75 + 95; // Sum of all incense stock
 
   const stats = [
     {
-      name: 'Total Revenue',
-      value: '$36,280',
-      change: '+12.5%',
-      changeType: 'positive',
-      icon: DollarSign,
-      color: 'bg-green-500',
-    },
-    {
-      name: 'Products',
-      value: '156',
-      change: '+3.2%',
-      changeType: 'positive',
+      title: 'Total Products',
+      value: totalProducts.toString(),
       icon: Package,
       color: 'bg-blue-500',
+      bgColor: 'bg-blue-100',
     },
     {
-      name: 'Customers',
-      value: '89',
-      change: '+8.1%',
-      changeType: 'positive',
-      icon: Users,
-      color: 'bg-purple-500',
+      title: 'Total Stock',
+      value: totalStock.toString(),
+      icon: Package,
+      color: 'bg-green-500',
+      bgColor: 'bg-green-100',
     },
     {
-      name: 'Orders',
-      value: '234',
-      change: '+15.3%',
-      changeType: 'positive',
+      title: 'Active Orders',
+      value: '12',
       icon: ShoppingCart,
+      color: 'bg-purple-500',
+      bgColor: 'bg-purple-100',
+    },
+    {
+      title: 'Total Customers',
+      value: '48',
+      icon: Users,
       color: 'bg-orange-500',
+      bgColor: 'bg-orange-100',
+    },
+    {
+      title: 'Monthly Revenue',
+      value: '$12,450',
+      icon: DollarSign,
+      color: 'bg-green-500',
+      bgColor: 'bg-green-100',
+    },
+    {
+      title: 'Growth Rate',
+      value: '+15.3%',
+      icon: TrendingUp,
+      color: 'bg-blue-500',
+      bgColor: 'bg-blue-100',
     },
   ];
 
   const recentOrders = [
-    { id: 'ORD-001', customer: 'John Smith', amount: '$245.00', status: 'Completed', date: '2024-06-20' },
-    { id: 'ORD-002', customer: 'Sarah Johnson', amount: '$189.50', status: 'Pending', date: '2024-06-20' },
-    { id: 'ORD-003', customer: 'Mike Wilson', amount: '$567.25', status: 'Shipped', date: '2024-06-19' },
-    { id: 'ORD-004', customer: 'Emma Davis', amount: '$123.75', status: 'Completed', date: '2024-06-19' },
+    {
+      id: 'SO-001-2024',
+      customer: 'John Smith',
+      amount: 245.00,
+      status: 'Pending',
+      date: '2024-06-20',
+    },
+    {
+      id: 'SO-002-2024',
+      customer: 'Sarah Johnson',
+      amount: 189.50,
+      status: 'Confirmed',
+      date: '2024-06-19',
+    },
+    {
+      id: 'SO-003-2024',
+      customer: 'Mike Wilson',
+      amount: 567.25,
+      status: 'Shipped',
+      date: '2024-06-18',
+    },
   ];
 
-  const lowStockItems = [
-    { name: 'Lavender Incense', stock: 5, threshold: 20 },
-    { name: 'Wooden Handicraft', stock: 3, threshold: 15 },
-    { name: 'Scented Candles', stock: 8, threshold: 25 },
-  ];
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Pending': return 'bg-yellow-100 text-yellow-800';
+      case 'Confirmed': return 'bg-blue-100 text-blue-800';
+      case 'Shipped': return 'bg-purple-100 text-purple-800';
+      case 'Delivered': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">Welcome to your business overview</p>
-        </div>
-        <div className="text-sm text-gray-500">
-          Last updated: {new Date().toLocaleDateString()}
-        </div>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 mt-1">Welcome to your incense business overview</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {stats.map((stat, index) => {
+          const IconComponent = stat.icon;
           return (
-            <div key={stat.name} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                   <p className="text-3xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                  <div className="flex items-center mt-2">
-                    <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                    <span className="text-sm font-medium text-green-600">{stat.change}</span>
-                    <span className="text-sm text-gray-500 ml-1">vs last month</span>
-                  </div>
                 </div>
-                <div className={`p-3 rounded-lg ${stat.color}`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                  <IconComponent className={`w-6 h-6 text-white`} style={{ color: stat.color.replace('bg-', '').replace('-500', '') }} />
                 </div>
               </div>
             </div>
@@ -114,119 +124,80 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* Charts Row */}
+      {/* Charts and Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
+        {/* Incense Sales Pie Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Incense Sales Distribution</h2>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="month" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#fff', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }} 
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#3b82f6" 
-                  strokeWidth={3}
-                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 6 }}
-                  activeDot={{ r: 8, stroke: '#3b82f6', strokeWidth: 2 }}
-                />
-              </LineChart>
+              <PieChart>
+                <Pie
+                  data={incenseSalesData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {incenseSalesData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => [`${value}%`, 'Sales Share']} />
+                <Legend />
+              </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Product Sales Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Products</h3>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={productSalesData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="product" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#fff', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }} 
-                />
-                <Bar dataKey="sales" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Tables Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Orders */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-2 font-medium text-gray-600">Order ID</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-600">Customer</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-600">Amount</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-600">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150">
-                    <td className="py-3 px-2 font-medium text-gray-900">{order.id}</td>
-                    <td className="py-3 px-2 text-gray-600">{order.customer}</td>
-                    <td className="py-3 px-2 font-medium text-gray-900">{order.amount}</td>
-                    <td className="py-3 px-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        order.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                        order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-blue-100 text-blue-800'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Low Stock Alert */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center mb-4">
-            <AlertTriangle className="w-5 h-5 text-orange-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">Low Stock Alerts</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
+            <span className="text-sm text-gray-500">Last 3 orders</span>
           </div>
           <div className="space-y-4">
-            {lowStockItems.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+            {recentOrders.map((order) => (
+              <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">{item.name}</p>
-                  <p className="text-sm text-gray-600">Only {item.stock} left in stock</p>
+                  <p className="font-medium text-gray-900">{order.id}</p>
+                  <p className="text-sm text-gray-600">{order.customer}</p>
+                  <p className="text-xs text-gray-500">{new Date(order.date).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-orange-600">Reorder needed</p>
-                  <p className="text-xs text-gray-500">Threshold: {item.threshold}</p>
+                  <p className="font-bold text-green-600">${order.amount.toFixed(2)}</p>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                    {order.status}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <button className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+            <Package className="w-6 h-6 text-blue-600" />
+            <span className="font-medium text-blue-900">Add Product</span>
+          </button>
+          <button className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200">
+            <ShoppingCart className="w-6 h-6 text-green-600" />
+            <span className="font-medium text-green-900">New Order</span>
+          </button>
+          <button className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
+            <Users className="w-6 h-6 text-purple-600" />
+            <span className="font-medium text-purple-900">Add Customer</span>
+          </button>
+          <button className="flex items-center space-x-3 p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors duration-200">
+            <FileText className="w-6 h-6 text-orange-600" />
+            <span className="font-medium text-orange-900">View Reports</span>
+          </button>
         </div>
       </div>
     </div>
