@@ -42,86 +42,278 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
         <head>
           <title>Invoice ${invoice.invoiceNumber}</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-            .company-info { flex: 1; }
-            .logo { width: 80px; height: 80px; border: 2px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-            .invoice-info { margin-bottom: 20px; }
-            .bill-to { margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            th { background-color: #f0f0f0; }
-            .totals { float: right; width: 300px; margin-top: 20px; }
-            .totals table { border: none; }
-            .totals td { border: none; padding: 5px; }
-            .final-total { font-weight: bold; font-size: 16px; }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body { 
+              font-family: 'Arial', sans-serif; 
+              margin: 0;
+              padding: 40px;
+              background: white;
+              color: #333;
+              line-height: 1.6;
+            }
+            
+            .invoice-container {
+              max-width: 800px;
+              margin: 0 auto;
+              background: white;
+              padding: 40px;
+              border: 1px solid #ddd;
+              box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+            
+            .header { 
+              display: flex; 
+              justify-content: space-between; 
+              align-items: flex-start; 
+              margin-bottom: 40px;
+              padding-bottom: 20px;
+              border-bottom: 2px solid #333;
+            }
+            
+            .company-info { 
+              flex: 1; 
+              padding-right: 20px;
+            }
+            
+            .company-info h1 {
+              font-size: 24px;
+              font-weight: bold;
+              color: #333;
+              margin-bottom: 8px;
+            }
+            
+            .company-info .tagline {
+              font-style: italic;
+              color: #666;
+              margin-bottom: 16px;
+              font-size: 14px;
+            }
+            
+            .company-info .details {
+              font-size: 12px;
+              color: #666;
+              line-height: 1.8;
+            }
+            
+            .logo { 
+              width: 100px; 
+              height: 100px; 
+              border: 3px solid #333; 
+              border-radius: 50%; 
+              display: flex; 
+              align-items: center; 
+              justify-content: center;
+              background: white;
+              flex-shrink: 0;
+            }
+            
+            .logo img {
+              width: 80px;
+              height: 80px;
+              object-fit: contain;
+            }
+            
+            .invoice-title {
+              font-size: 36px;
+              font-weight: bold;
+              color: #333;
+              margin: 30px 0 20px 0;
+              text-align: left;
+            }
+            
+            .invoice-details {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 40px;
+              margin-bottom: 40px;
+            }
+            
+            .invoice-info h3, .bill-to h3 {
+              font-size: 16px;
+              font-weight: bold;
+              margin-bottom: 12px;
+              color: #333;
+            }
+            
+            .invoice-info p, .bill-to p {
+              margin-bottom: 6px;
+              font-size: 14px;
+            }
+            
+            table { 
+              width: 100%; 
+              border-collapse: collapse; 
+              margin: 30px 0;
+              font-size: 14px;
+            }
+            
+            th, td { 
+              border: 1px solid #333; 
+              padding: 12px; 
+              text-align: left; 
+            }
+            
+            th { 
+              background-color: #f8f9fa; 
+              font-weight: bold;
+              color: #333;
+            }
+            
+            .totals { 
+              margin-top: 30px;
+              display: flex;
+              justify-content: flex-end;
+            }
+            
+            .totals-table {
+              border: none;
+              width: 350px;
+            }
+            
+            .totals-table td { 
+              border: none; 
+              padding: 8px 12px;
+              font-size: 14px;
+            }
+            
+            .totals-table .label {
+              text-align: left;
+              font-weight: 500;
+              width: 200px;
+            }
+            
+            .totals-table .amount {
+              text-align: right;
+              font-weight: 500;
+              width: 100px;
+            }
+            
+            .final-total { 
+              font-weight: bold; 
+              font-size: 16px;
+              border-top: 2px solid #333;
+              background-color: #f8f9fa;
+            }
+            
+            .footer {
+              margin-top: 50px;
+              padding-top: 20px;
+              border-top: 1px solid #ddd;
+              text-align: center;
+              font-size: 12px;
+              color: #666;
+            }
+            
+            @media print {
+              body { margin: 0; padding: 20px; }
+              .invoice-container { 
+                box-shadow: none; 
+                border: none; 
+                padding: 20px;
+              }
+            }
           </style>
         </head>
         <body>
-          <div class="header">
-            <div class="company-info">
-              <h2>SKIF INTERNATIONAL PANAMA, S.A.</h2>
-              <p><em>AUTENTICO INCIENSO DE LA INDIA</em></p>
-              <p>Calle 15 y 16 Edificio Aeroportuario</p>
-              <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
-              <p>R.U.C. 155724460-22022 DV85</p>
-              <p>Teléfono (507) 66756877</p>
-              <p>Email: skifinternationalpanama@gmail.com</p>
+          <div class="invoice-container">
+            <div class="header">
+              <div class="company-info">
+                <h1>SKIF INTERNATIONAL PANAMA, S.A.</h1>
+                <p class="tagline">AUTENTICO INCIENSO DE LA INDIA</p>
+                <div class="details">
+                  <p>Calle 15 y 16 Edificio Aeroportuario</p>
+                  <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
+                  <p>R.U.C. 155724460-22022 DV85</p>
+                  <p>Teléfono (507) 66756877</p>
+                  <p>Email: skifinternationalpanama@gmail.com</p>
+                </div>
+              </div>
+              <div class="logo">
+                <img src="/lovable-uploads/2bb763c9-a626-4d65-aea8-b3b41d61cb8f.png" alt="AARTI Logo" />
+              </div>
             </div>
-            <div class="logo">
-              <span style="font-weight: bold; color: #d32f2f;">AARTI</span>
+
+            <h2 class="invoice-title">INVOICE</h2>
+            
+            <div class="invoice-details">
+              <div class="invoice-info">
+                <h3>Invoice Details</h3>
+                <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+                <p><strong>Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
+                <p><strong>Order ID:</strong> ${invoice.orderNumber}</p>
+              </div>
+
+              <div class="bill-to">
+                <h3>Bill To:</h3>
+                <p><strong>${invoice.customerName}</strong></p>
+                <p>${invoice.companyName}</p>
+              </div>
             </div>
-          </div>
 
-          <h2>INVOICE</h2>
-          
-          <div class="invoice-info">
-            <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
-            <p><strong>Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-            <p><strong>Order ID:</strong> ${invoice.orderNumber}</p>
-          </div>
-
-          <div class="bill-to">
-            <p><strong>Bill To:</strong></p>
-            <p>${invoice.customerName}</p>
-            <p>${invoice.companyName}</p>
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Unit Price ($)</th>
-                <th>Total ($)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${invoice.items?.map((item, index) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${item.productName}</td>
-                  <td>${item.quantity}</td>
-                  <td>$${item.price.toFixed(2)}</td>
-                  <td>$${(item.quantity * item.price).toFixed(2)}</td>
-                </tr>
-              `).join('') || ''}
-            </tbody>
-          </table>
-
-          <div class="totals">
             <table>
-              <tr><td>SUB-TOTAL</td><td>$${subtotal.toFixed(2)}</td></tr>
-              <tr><td>PESO DESCUENTO %</td><td>-$${discount.toFixed(2)}</td></tr>
-              <tr><td>CBM. TRASPASO</td><td>$${cbmTraspaso.toFixed(2)}</td></tr>
-              <tr><td>TRANSPORTE</td><td>$${transporte.toFixed(2)}</td></tr>
-              <tr class="final-total"><td>TOTAL FOB</td><td>$${totalFOB.toFixed(2)}</td></tr>
+              <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th>Product</th>
+                  <th style="width: 100px;">Quantity</th>
+                  <th style="width: 120px;">Unit Price ($)</th>
+                  <th style="width: 120px;">Total ($)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${invoice.items?.map((item, index) => `
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.productName}</td>
+                    <td style="text-align: center;">${item.quantity}</td>
+                    <td style="text-align: right;">$${item.price.toFixed(2)}</td>
+                    <td style="text-align: right;">$${(item.quantity * item.price).toFixed(2)}</td>
+                  </tr>
+                `).join('') || `
+                  <tr>
+                    <td>1</td>
+                    <td>Incense Products</td>
+                    <td style="text-align: center;">1</td>
+                    <td style="text-align: right;">$${invoice.amount.toFixed(2)}</td>
+                    <td style="text-align: right;">$${invoice.amount.toFixed(2)}</td>
+                  </tr>
+                `}
+              </tbody>
             </table>
-          </div>
 
-          <div style="clear: both; margin-top: 50px; text-align: center; font-size: 12px;">
-            <p>This is a computer-generated invoice and does not require a signature.</p>
+            <div class="totals">
+              <table class="totals-table">
+                <tr>
+                  <td class="label">SUB-TOTAL</td>
+                  <td class="amount">$${subtotal.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td class="label">PESO DESCUENTO %</td>
+                  <td class="amount">-$${discount.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td class="label">CBM. TRASPASO</td>
+                  <td class="amount">$${cbmTraspaso.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td class="label">TRANSPORTE</td>
+                  <td class="amount">$${transporte.toFixed(2)}</td>
+                </tr>
+                <tr class="final-total">
+                  <td class="label"><strong>TOTAL FOB</strong></td>
+                  <td class="amount"><strong>$${totalFOB.toFixed(2)}</strong></td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="footer">
+              <p>This is a computer-generated invoice and does not require a signature.</p>
+            </div>
           </div>
         </body>
         </html>
@@ -154,7 +346,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, onClose }) => 
           </div>
         </div>
 
-        {/* Invoice Content */}
+        {/* Invoice Content - Preview */}
         <div className="p-8 bg-white">
           {/* Company Header with Logo */}
           <div className="flex justify-between items-start mb-8">

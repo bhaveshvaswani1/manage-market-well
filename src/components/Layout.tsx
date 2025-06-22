@@ -8,7 +8,8 @@ import {
   ShoppingCart, 
   FileText, 
   Menu,
-  X
+  X,
+  Building2
 } from 'lucide-react';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -19,6 +20,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Products', href: '/products', icon: Package },
     { name: 'Customers', href: '/customers', icon: Users },
+    { name: 'Suppliers', href: '/suppliers', icon: Building2 },
     { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
     { name: 'Invoices', href: '/invoices', icon: FileText },
   ];
