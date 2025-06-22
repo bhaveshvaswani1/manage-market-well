@@ -84,111 +84,387 @@ const InvoiceList = () => {
     }
   };
 
-  const handleDownloadPDF = (invoice: Invoice) => {
-    // Create a new window with the invoice content for printing/PDF
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Invoice ${invoice.invoiceNumber}</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .company-info { text-align: right; margin-bottom: 20px; }
-            .invoice-info { margin-bottom: 20px; }
-            .bill-to { margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            th { background-color: #f0f0f0; }
-            .total { text-align: right; font-weight: bold; margin-top: 20px; }
-            .terms { margin-top: 30px; font-size: 12px; }
-            .signature { text-align: center; margin-top: 40px; font-size: 12px; }
-          </style>
-        </head>
-        <body>
+  const generateInvoiceHTML = async (invoice: Invoice) => {
+    const subtotal = invoice.items?.reduce((sum, item) => sum + (item.quantity * item.price), 0) || invoice.amount;
+    const discount = subtotal * 0.1;
+    const cbmTraspaso = 20.00;
+    const transporte = 0.00;
+    const totalFOB = subtotal - discount + cbmTraspaso + transporte;
+
+    // Get logo as base64
+    let logoBase64 = '';
+    try {
+      const response = await fetch('/lovable-uploads/2bb763c9-a626-4d65-aea8-b3b41d61cb8f.png');
+      const blob = await response.blob();
+      logoBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error loading logo:', error);
+    }
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Invoice ${invoice.invoiceNumber}</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          @page {
+            size: A4;
+            margin: 15mm;
+          }
+          
+          body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 0;
+            padding: 0;
+            background: white;
+            color: #333;
+            line-height: 1.4;
+            font-size: 12px;
+          }
+          
+          .invoice-container {
+            width: 100%;
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: white;
+            padding: 15mm;
+          }
+          
+          .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start; 
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #2563eb;
+          }
+          
+          .company-info { 
+            flex: 1; 
+            padding-right: 30px;
+          }
+          
+          .company-info h1 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            line-height: 1.2;
+          }
+          
+          .company-info .tagline {
+            font-style: italic;
+            color: #6b7280;
+            margin-bottom: 12px;
+            font-size: 11px;
+            font-weight: 500;
+          }
+          
+          .company-info .details {
+            font-size: 10px;
+            color: #4b5563;
+            line-height: 1.5;
+          }
+          
+          .company-info .details p {
+            margin-bottom: 3px;
+          }
+          
+          .logo-container { 
+            width: 70px; 
+            height: 70px; 
+            border: 2px solid #2563eb; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background: white;
+            flex-shrink: 0;
+            padding: 5px;
+          }
+          
+          .logo-container img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 50%;
+          }
+          
+          .invoice-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 20px 0 20px 0;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+          
+          .invoice-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+          }
+          
+          .invoice-info h3, .bill-to h3 {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1f2937;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 3px;
+          }
+          
+          .invoice-info p, .bill-to p {
+            margin-bottom: 5px;
+            font-size: 11px;
+          }
+          
+          .invoice-info strong, .bill-to strong {
+            color: #1f2937;
+          }
+          
+          table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0;
+            font-size: 10px;
+            page-break-inside: auto;
+          }
+          
+          th, td { 
+            border: 1px solid #d1d5db; 
+            padding: 8px 6px; 
+            text-align: left; 
+          }
+          
+          th { 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.3px;
+          }
+          
+          tr:nth-child(even) {
+            background-color: #f9fafb;
+          }
+          
+          .totals { 
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+            page-break-inside: avoid;
+          }
+          
+          .totals-table {
+            border: none;
+            width: 300px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+          }
+          
+          .totals-table td { 
+            border: none; 
+            padding: 8px 12px;
+            font-size: 11px;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          
+          .totals-table .label {
+            text-align: left;
+            font-weight: 600;
+            width: 180px;
+            background-color: #f8fafc;
+            color: #374151;
+          }
+          
+          .totals-table .amount {
+            text-align: right;
+            font-weight: 600;
+            width: 120px;
+            background-color: white;
+            color: #1f2937;
+          }
+          
+          .final-total { 
+            font-weight: bold; 
+            font-size: 13px;
+            border-top: 2px solid #2563eb !important;
+          }
+          
+          .final-total .label {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+            color: white !important;
+            text-transform: uppercase;
+          }
+          
+          .final-total .amount {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            color: white !important;
+            font-size: 14px;
+          }
+          
+          .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 10px;
+            color: #6b7280;
+            font-style: italic;
+            page-break-inside: avoid;
+          }
+          
+          @media print {
+            body { 
+              margin: 0; 
+              padding: 0; 
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+            }
+            .invoice-container { 
+              box-shadow: none; 
+              padding: 0;
+              margin: 0;
+              max-width: none;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice-container">
           <div class="header">
-            <h1>SKIF INTERNATIONAL PANAMA, S.A.</h1>
-            <p><em>AUTENTICO INCIENSO DE LA INDIA</em></p>
+            <div class="company-info">
+              <h1>SKIF INTERNATIONAL PANAMA, S.A.</h1>
+              <p class="tagline">AUTENTICO INCIENSO DE LA INDIA</p>
+              <div class="details">
+                <p><strong>Address:</strong> Calle 15 y 16 Edificio Aeroportuario</p>
+                <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
+                <p><strong>R.U.C.:</strong> 155724460-22022 DV85</p>
+                <p><strong>Phone:</strong> (507) 66756877</p>
+                <p><strong>Email:</strong> skifinternationalpanama@gmail.com</p>
+              </div>
+            </div>
+            <div class="logo-container">
+              ${logoBase64 ? `<img src="${logoBase64}" alt="AARTI Logo" />` : '<div style="color: #2563eb; font-weight: bold; font-size: 16px;">LOGO</div>'}
+            </div>
           </div>
+
+          <h2 class="invoice-title">Invoice</h2>
           
-          <div class="company-info">
-            <p>Calle 15 y 16 Edificio Aeroportuario</p>
-            <p>Piso No. 2, Oficina No. 16, Zona Libre de Colón</p>
-            <p>R.U.C. 155724460-22022 DV85</p>
-            <p>Teléfono (507) 66756877</p>
-            <p>Email: skifinternationalpanama@gmail.com</p>
+          <div class="invoice-details">
+            <div class="invoice-info">
+              <h3>Invoice Details</h3>
+              <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+              <p><strong>Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
+              <p><strong>Order ID:</strong> ${invoice.orderNumber}</p>
+              <p><strong>Due Date:</strong> ${new Date(invoice.dueDate).toLocaleDateString()}</p>
+            </div>
+
+            <div class="bill-to">
+              <h3>Bill To</h3>
+              <p><strong>${invoice.customerName}</strong></p>
+              <p>${invoice.companyName}</p>
+              <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">${invoice.status}</span></p>
+            </div>
           </div>
 
-          <h2>INVOICE</h2>
-          
-          <div class="invoice-info">
-            <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
-            <p><strong>Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-            <p><strong>Order ID:</strong> ${invoice.orderNumber}</p>
-            <p><strong>Order Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-          </div>
-
-          <div class="bill-to">
-            <p><strong>Bill To:</strong></p>
-            <p>${invoice.customerName}</p>
-            <p>${invoice.companyName}</p>
-            <p>+517-2982323</p>
-          </div>
-
-          <h3>Order Items</h3>
           <table>
             <thead>
               <tr>
-                <th>#</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Unit Price ($)</th>
-                <th>Total ($)</th>
+                <th style="width: 30px;">#</th>
+                <th>Product Description</th>
+                <th style="width: 60px;">Qty</th>
+                <th style="width: 80px;">Unit Price ($)</th>
+                <th style="width: 80px;">Total ($)</th>
               </tr>
             </thead>
             <tbody>
               ${invoice.items?.map((item, index) => `
                 <tr>
-                  <td>${index + 1}</td>
-                  <td>${item.productName}</td>
-                  <td>${item.quantity}</td>
-                  <td>$${item.price.toFixed(2)}</td>
-                  <td>$${(item.quantity * item.price).toFixed(2)}</td>
+                  <td style="text-align: center; font-weight: bold;">${index + 1}</td>
+                  <td><strong>${item.productName}</strong><br><small style="color: #6b7280;">Premium Incense Sticks</small></td>
+                  <td style="text-align: center; font-weight: bold;">${item.quantity}</td>
+                  <td style="text-align: right; font-weight: bold;">$${item.price.toFixed(2)}</td>
+                  <td style="text-align: right; font-weight: bold; color: #059669;">$${(item.quantity * item.price).toFixed(2)}</td>
                 </tr>
               `).join('') || `
                 <tr>
-                  <td>1</td>
-                  <td>Incense Products</td>
-                  <td>1</td>
-                  <td>$${invoice.amount.toFixed(2)}</td>
-                  <td>$${invoice.amount.toFixed(2)}</td>
+                  <td style="text-align: center; font-weight: bold;">1</td>
+                  <td><strong>Incense Products</strong><br><small style="color: #6b7280;">Premium Incense Collection</small></td>
+                  <td style="text-align: center; font-weight: bold;">1</td>
+                  <td style="text-align: right; font-weight: bold;">$${invoice.amount.toFixed(2)}</td>
+                  <td style="text-align: right; font-weight: bold; color: #059669;">$${invoice.amount.toFixed(2)}</td>
                 </tr>
               `}
             </tbody>
           </table>
 
-          <div class="total">
-            <p>Subtotal: $${invoice.amount.toFixed(2)}</p>
-            <h3>Total Amount: $${invoice.amount.toFixed(2)}</h3>
+          <div class="totals">
+            <table class="totals-table">
+              <tr>
+                <td class="label">SUB-TOTAL</td>
+                <td class="amount">$${subtotal.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td class="label">PESO DESCUENTO %</td>
+                <td class="amount">-$${discount.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td class="label">CBM. TRASPASO</td>
+                <td class="amount">$${cbmTraspaso.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td class="label">TRANSPORTE</td>
+                <td class="amount">$${transporte.toFixed(2)}</td>
+              </tr>
+              <tr class="final-total">
+                <td class="label">TOTAL FOB</td>
+                <td class="amount">$${totalFOB.toFixed(2)}</td>
+              </tr>
+            </table>
           </div>
 
-          <div class="terms">
-            <h4>Terms & Conditions:</h4>
-            <p>1. Payment due within 30 days.</p>
-            <p>2. Please quote the invoice number when making payments.</p>
-            <p>3. Goods once sold will not be taken back.</p>
-          </div>
-
-          <div class="signature">
+          <div class="footer">
+            <p><strong>Thank you for your business!</strong></p>
             <p>This is a computer-generated invoice and does not require a signature.</p>
+            <p>For any queries, please contact us at skifinternationalpanama@gmail.com</p>
           </div>
-        </body>
-        </html>
-      `);
+        </div>
+      </body>
+      </html>
+    `;
+  };
+
+  const handleDownloadPDF = async (invoice: Invoice) => {
+    const htmlContent = await generateInvoiceHTML(invoice);
+    
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
       printWindow.document.close();
-      printWindow.print();
+      
+      // Wait for images to load before printing
+      setTimeout(() => {
+        printWindow.print();
+      }, 1000);
     }
   };
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Users, Package, ShoppingCart, FileText, DollarSign, TrendingUp, Building2 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from 'recharts';
+import LowStockList from './Dashboard/LowStockList';
 
 const Dashboard = () => {
   // Mock data for incense sales
@@ -45,7 +46,7 @@ const Dashboard = () => {
   const totalProducts = 5;
   const totalStock = 150 + 120 + 89 + 75 + 95;
   const totalCustomers = 4;
-  const totalSuppliers = 3; // Added suppliers count
+  const totalSuppliers = 3;
 
   const stats = [
     {
@@ -265,32 +266,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <button className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
-            <Package className="w-6 h-6 text-blue-600" />
-            <span className="font-medium text-blue-900">Add Product</span>
-          </button>
-          <button className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200">
-            <ShoppingCart className="w-6 h-6 text-green-600" />
-            <span className="font-medium text-green-900">New Order</span>
-          </button>
-          <button className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
-            <Users className="w-6 h-6 text-purple-600" />
-            <span className="font-medium text-purple-900">Add Customer</span>
-          </button>
-          <button className="flex items-center space-x-3 p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
-            <Building2 className="w-6 h-6 text-indigo-600" />
-            <span className="font-medium text-indigo-900">Add Supplier</span>
-          </button>
-          <button className="flex items-center space-x-3 p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors duration-200">
-            <FileText className="w-6 h-6 text-orange-600" />
-            <span className="font-medium text-orange-900">View Reports</span>
-          </button>
-        </div>
-      </div>
+      {/* Low Stock Alert */}
+      <LowStockList />
     </div>
   );
 };
