@@ -1,79 +1,13 @@
-
 import React, { useState } from 'react';
-import { FileText, Download, Eye, Calendar, DollarSign } from 'lucide-react';
+import { FileText, Download, Eye, Calendar, DollarSign, Edit } from 'lucide-react';
 import InvoicePreview from './InvoicePreview';
-
-interface InvoiceItem {
-  productName: string;
-  quantity: number;
-  price: number;
-}
-
-interface Invoice {
-  id: number;
-  invoiceNumber: string;
-  customerName: string;
-  companyName: string;
-  orderNumber: string;
-  invoiceDate: string;
-  dueDate: string;
-  amount: number;
-  status: string;
-  items?: InvoiceItem[];
-}
+import InvoiceStatusManager from './InvoiceStatusManager';
+import { useData } from '../../contexts/DataContext';
 
 const InvoiceList = () => {
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-
-  // Mock invoice data with items
-  const invoices: Invoice[] = [
-    {
-      id: 1,
-      invoiceNumber: 'INV-001-2024',
-      customerName: 'John Smith',
-      companyName: 'Smith Enterprises',
-      orderNumber: 'SO-001-2024',
-      invoiceDate: '2024-06-20',
-      dueDate: '2024-07-20',
-      amount: 245.00,
-      status: 'Paid',
-      items: [
-        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
-        { productName: 'Rose Incense Sticks', quantity: 2, price: 45.00 },
-      ]
-    },
-    {
-      id: 2,
-      invoiceNumber: 'INV-002-2024',
-      customerName: 'Sarah Johnson',
-      companyName: 'Johnson & Associates',
-      orderNumber: 'SO-002-2024',
-      invoiceDate: '2024-06-19',
-      dueDate: '2024-07-19',
-      amount: 189.50,
-      status: 'Pending',
-      items: [
-        { productName: 'Sandalwood Incense Sticks', quantity: 3, price: 22.99 },
-        { productName: 'Jasmine Incense Sticks', quantity: 4, price: 19.50 },
-      ]
-    },
-    {
-      id: 3,
-      invoiceNumber: 'INV-003-2024',
-      customerName: 'Mike Wilson',
-      companyName: 'Wilson Trading Co.',
-      orderNumber: 'SO-003-2024',
-      invoiceDate: '2024-06-18',
-      dueDate: '2024-07-18',
-      amount: 567.25,
-      status: 'Overdue',
-      items: [
-        { productName: 'Phool Incense Sticks', quantity: 10, price: 17.99 },
-        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
-        { productName: 'Rose Incense Sticks', quantity: 8, price: 15.99 },
-      ]
-    },
-  ];
+  const { invoices, updateInvoiceStatus } = useData();
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [editingInvoice, setEditingInvoice] = useState(null);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -84,14 +18,13 @@ const InvoiceList = () => {
     }
   };
 
-  const generateInvoiceHTML = async (invoice: Invoice) => {
+  const generateInvoiceHTML = async (invoice) => {
     const subtotal = invoice.items?.reduce((sum, item) => sum + (item.quantity * item.price), 0) || invoice.amount;
     const discount = subtotal * 0.1;
     const cbmTraspaso = 20.00;
     const transporte = 0.00;
     const totalFOB = subtotal - discount + cbmTraspaso + transporte;
 
-    // Get logo as base64
     let logoBase64 = '';
     try {
       const response = await fetch('/lovable-uploads/2bb763c9-a626-4d65-aea8-b3b41d61cb8f.png');
@@ -129,7 +62,7 @@ const InvoiceList = () => {
             background: white;
             color: #333;
             line-height: 1.4;
-            font-size: 12px;
+            font-size: 11px;
           }
           
           .invoice-container {
@@ -156,7 +89,7 @@ const InvoiceList = () => {
           }
           
           .company-info h1 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #1f2937;
             margin-bottom: 6px;
@@ -168,12 +101,12 @@ const InvoiceList = () => {
             font-style: italic;
             color: #6b7280;
             margin-bottom: 12px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
           }
           
           .company-info .details {
-            font-size: 10px;
+            font-size: 9px;
             color: #4b5563;
             line-height: 1.5;
           }
@@ -183,8 +116,8 @@ const InvoiceList = () => {
           }
           
           .logo-container { 
-            width: 70px; 
-            height: 70px; 
+            width: 60px; 
+            height: 60px; 
             border: 2px solid #2563eb; 
             border-radius: 50%; 
             display: flex; 
@@ -196,14 +129,14 @@ const InvoiceList = () => {
           }
           
           .logo-container img {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
             border-radius: 50%;
           }
           
           .invoice-title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             color: #2563eb;
             margin: 20px 0 20px 0;
@@ -220,7 +153,7 @@ const InvoiceList = () => {
           }
           
           .invoice-info h3, .bill-to h3 {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             margin-bottom: 10px;
             color: #1f2937;
@@ -231,7 +164,7 @@ const InvoiceList = () => {
           
           .invoice-info p, .bill-to p {
             margin-bottom: 5px;
-            font-size: 11px;
+            font-size: 10px;
           }
           
           .invoice-info strong, .bill-to strong {
@@ -242,13 +175,13 @@ const InvoiceList = () => {
             width: 100%; 
             border-collapse: collapse; 
             margin: 20px 0;
-            font-size: 10px;
+            font-size: 9px;
             page-break-inside: auto;
           }
           
           th, td { 
             border: 1px solid #d1d5db; 
-            padding: 8px 6px; 
+            padding: 6px 4px; 
             text-align: left; 
           }
           
@@ -257,7 +190,7 @@ const InvoiceList = () => {
             color: white;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 9px;
+            font-size: 8px;
             letter-spacing: 0.3px;
           }
           
@@ -274,7 +207,7 @@ const InvoiceList = () => {
           
           .totals-table {
             border: none;
-            width: 300px;
+            width: 280px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             border-radius: 6px;
             overflow: hidden;
@@ -282,15 +215,15 @@ const InvoiceList = () => {
           
           .totals-table td { 
             border: none; 
-            padding: 8px 12px;
-            font-size: 11px;
+            padding: 6px 10px;
+            font-size: 10px;
             border-bottom: 1px solid #e5e7eb;
           }
           
           .totals-table .label {
             text-align: left;
             font-weight: 600;
-            width: 180px;
+            width: 160px;
             background-color: #f8fafc;
             color: #374151;
           }
@@ -305,7 +238,7 @@ const InvoiceList = () => {
           
           .final-total { 
             font-weight: bold; 
-            font-size: 13px;
+            font-size: 11px;
             border-top: 2px solid #2563eb !important;
           }
           
@@ -318,7 +251,7 @@ const InvoiceList = () => {
           .final-total .amount {
             background: linear-gradient(135deg, #10b981, #059669) !important;
             color: white !important;
-            font-size: 14px;
+            font-size: 12px;
           }
           
           .footer {
@@ -326,7 +259,7 @@ const InvoiceList = () => {
             padding-top: 20px;
             border-top: 1px solid #e5e7eb;
             text-align: center;
-            font-size: 10px;
+            font-size: 9px;
             color: #6b7280;
             font-style: italic;
             page-break-inside: avoid;
@@ -363,7 +296,7 @@ const InvoiceList = () => {
               </div>
             </div>
             <div class="logo-container">
-              ${logoBase64 ? `<img src="${logoBase64}" alt="AARTI Logo" />` : '<div style="color: #2563eb; font-weight: bold; font-size: 16px;">LOGO</div>'}
+              ${logoBase64 ? `<img src="${logoBase64}" alt="AARTI Logo" />` : '<div style="color: #2563eb; font-weight: bold; font-size: 14px;">LOGO</div>'}
             </div>
           </div>
 
@@ -391,9 +324,9 @@ const InvoiceList = () => {
               <tr>
                 <th style="width: 30px;">#</th>
                 <th>Product Description</th>
-                <th style="width: 60px;">Qty</th>
-                <th style="width: 80px;">Unit Price ($)</th>
-                <th style="width: 80px;">Total ($)</th>
+                <th style="width: 50px;">Qty</th>
+                <th style="width: 70px;">Unit Price ($)</th>
+                <th style="width: 70px;">Total ($)</th>
               </tr>
             </thead>
             <tbody>
@@ -453,7 +386,7 @@ const InvoiceList = () => {
     `;
   };
 
-  const handleDownloadPDF = async (invoice: Invoice) => {
+  const handleDownloadPDF = async (invoice) => {
     const htmlContent = await generateInvoiceHTML(invoice);
     
     const printWindow = window.open('', '_blank');
@@ -461,15 +394,18 @@ const InvoiceList = () => {
       printWindow.document.write(htmlContent);
       printWindow.document.close();
       
-      // Wait for images to load before printing
       setTimeout(() => {
         printWindow.print();
       }, 1000);
     }
   };
 
-  const handlePreview = (invoice: Invoice) => {
+  const handlePreview = (invoice) => {
     setSelectedInvoice(invoice);
+  };
+
+  const handleStatusUpdate = (id: number, status: 'Paid' | 'Pending' | 'Overdue', dueDate?: string) => {
+    updateInvoiceStatus(id, status, dueDate);
   };
 
   return (
@@ -525,7 +461,6 @@ const InvoiceList = () => {
         </div>
       </div>
 
-      {/* Invoices Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -579,6 +514,13 @@ const InvoiceList = () => {
                   <td className="py-4 px-6">
                     <div className="flex items-center justify-end space-x-2">
                       <button
+                        onClick={() => setEditingInvoice(invoice)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                        title="Update Status"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => handlePreview(invoice)}
                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                         title="Preview Invoice"
@@ -600,7 +542,6 @@ const InvoiceList = () => {
           </table>
         </div>
 
-        {/* Empty State */}
         {invoices.length === 0 && (
           <div className="p-12 text-center">
             <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -610,11 +551,18 @@ const InvoiceList = () => {
         )}
       </div>
 
-      {/* Invoice Preview Modal */}
       {selectedInvoice && (
         <InvoicePreview
           invoice={selectedInvoice}
           onClose={() => setSelectedInvoice(null)}
+        />
+      )}
+
+      {editingInvoice && (
+        <InvoiceStatusManager
+          invoice={editingInvoice}
+          onUpdateStatus={handleStatusUpdate}
+          onClose={() => setEditingInvoice(null)}
         />
       )}
     </div>

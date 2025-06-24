@@ -12,31 +12,34 @@ import Suppliers from "./components/Suppliers/SupplierList";
 import SalesOrders from "./components/SalesOrders/SalesOrderList";
 import Invoices from "./components/Invoices/InvoiceList";
 import NotFound from "./pages/NotFound";
+import { DataProvider } from "./contexts/DataContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <div className="w-full">
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/suppliers" element={<Suppliers />} />
-              <Route path="/sales-orders" element={<SalesOrders />} />
-              <Route path="/invoices" element={<Invoices />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </BrowserRouter>
-      </div>
-    </TooltipProvider>
+    <DataProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <div className="w-full">
+          <BrowserRouter>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/customers" element={<Customers />} />
+                <Route path="/suppliers" element={<Suppliers />} />
+                <Route path="/sales-orders" element={<SalesOrders />} />
+                <Route path="/invoices" element={<Invoices />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          </BrowserRouter>
+        </div>
+      </TooltipProvider>
+    </DataProvider>
   </QueryClientProvider>
 );
 

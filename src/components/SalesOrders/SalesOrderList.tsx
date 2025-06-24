@@ -1,67 +1,13 @@
 import React, { useState } from 'react';
 import { Plus, Search, Eye, Edit, FileText, ShoppingCart } from 'lucide-react';
 import SalesOrderForm from './SalesOrderForm';
+import { useData } from '../../contexts/DataContext';
 
 const SalesOrderList = () => {
+  const { salesOrders, addSalesOrder } = useData();
   const [showForm, setShowForm] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Mock sales order data
-  const [salesOrders, setSalesOrders] = useState([
-    {
-      id: 1,
-      orderNumber: 'SO-001-2024',
-      customerName: 'John Smith',
-      companyName: 'Smith Enterprises',
-      orderDate: '2024-06-20',
-      status: 'Pending',
-      totalAmount: 245.00,
-      items: [
-        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
-        { productName: 'Rose Incense Sticks', quantity: 2, price: 15.00 },
-      ]
-    },
-    {
-      id: 2,
-      orderNumber: 'SO-002-2024',
-      customerName: 'Sarah Johnson',
-      companyName: 'Johnson & Associates',
-      orderDate: '2024-06-19',
-      status: 'Confirmed',
-      totalAmount: 189.50,
-      items: [
-        { productName: 'Sandalwood Incense Sticks', quantity: 3, price: 22.99 },
-        { productName: 'Jasmine Incense Sticks', quantity: 4, price: 19.50 },
-      ]
-    },
-    {
-      id: 3,
-      orderNumber: 'SO-003-2024',
-      customerName: 'Mike Wilson',
-      companyName: 'Wilson Trading Co.',
-      orderDate: '2024-06-18',
-      status: 'Shipped',
-      totalAmount: 567.25,
-      items: [
-        { productName: 'Phool Incense Sticks', quantity: 10, price: 17.99 },
-        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
-      ]
-    },
-    {
-      id: 4,
-      orderNumber: 'SO-004-2024',
-      customerName: 'Emma Davis',
-      companyName: 'Davis Retail Solutions',
-      orderDate: '2024-06-17',
-      status: 'Delivered',
-      totalAmount: 123.75,
-      items: [
-        { productName: 'Rose Incense Sticks', quantity: 2, price: 15.00 },
-        { productName: 'Sandalwood Incense Sticks', quantity: 4, price: 22.99 },
-      ]
-    },
-  ]);
 
   const filteredOrders = salesOrders.filter(order => {
     const searchLower = searchTerm.toLowerCase();
@@ -85,22 +31,16 @@ const SalesOrderList = () => {
 
   const handleSave = (orderData) => {
     if (editingOrder) {
-      setSalesOrders(salesOrders.map(o => 
-        o.id === editingOrder.id ? { ...orderData, id: editingOrder.id } : o
-      ));
+      // Handle editing existing order logic would go here
+      console.log('Edit order functionality not yet implemented');
     } else {
-      setSalesOrders([...salesOrders, { 
-        ...orderData, 
-        id: Date.now(),
-        orderNumber: `SO-${String(salesOrders.length + 1).padStart(3, '0')}-2024`
-      }]);
+      addSalesOrder(orderData);
     }
     setShowForm(false);
     setEditingOrder(null);
   };
 
   const handleGenerateInvoice = (order) => {
-    // Navigate to invoice generation
     console.log('Generate invoice for order:', order.orderNumber);
   };
 

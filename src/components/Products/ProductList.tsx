@@ -1,65 +1,13 @@
 import React, { useState } from 'react';
 import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
 import ProductForm from './ProductForm';
+import { useData } from '../../contexts/DataContext';
 
 const ProductList = () => {
+  const { products, updateProduct } = useData();
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Mock product data - Only incense sticks
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: 'Lavender Incense Sticks',
-      description: 'Premium quality lavender scented incense sticks for relaxation',
-      costPrice: 12.50,
-      sellingPrice: 18.99,
-      stockQuantity: 150,
-      category: 'Incense',
-      supplier: 'Aromatic Supplies Co.',
-    },
-    {
-      id: 2,
-      name: 'Rose Incense Sticks',
-      description: 'Elegant rose fragrant incense sticks for romantic ambiance',
-      costPrice: 10.00,
-      sellingPrice: 15.00,
-      stockQuantity: 120,
-      category: 'Incense',
-      supplier: 'Floral Scents Ltd.',
-    },
-    {
-      id: 3,
-      name: 'Phool Incense Sticks',
-      description: 'Traditional flower blend incense sticks for spiritual practices',
-      costPrice: 11.25,
-      sellingPrice: 17.99,
-      stockQuantity: 89,
-      category: 'Incense',
-      supplier: 'Sacred Aromas Inc.',
-    },
-    {
-      id: 4,
-      name: 'Sandalwood Incense Sticks',
-      description: 'Pure sandalwood incense sticks for meditation and peace',
-      costPrice: 15.25,
-      sellingPrice: 22.99,
-      stockQuantity: 75,
-      category: 'Incense',
-      supplier: 'Premium Woods Co.',
-    },
-    {
-      id: 5,
-      name: 'Jasmine Incense Sticks',
-      description: 'Sweet jasmine scented incense sticks for calming atmosphere',
-      costPrice: 13.00,
-      sellingPrice: 19.50,
-      stockQuantity: 95,
-      category: 'Incense',
-      supplier: 'Exotic Fragrances Ltd.',
-    },
-  ]);
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -73,17 +21,17 @@ const ProductList = () => {
 
   const handleDelete = (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      setProducts(products.filter(p => p.id !== productId));
+      // Handle delete logic would go here
+      console.log('Delete functionality not yet implemented');
     }
   };
 
   const handleSave = (productData) => {
     if (editingProduct) {
-      setProducts(products.map(p => 
-        p.id === editingProduct.id ? { ...productData, id: editingProduct.id } : p
-      ));
+      updateProduct(editingProduct.id, productData);
     } else {
-      setProducts([...products, { ...productData, id: Date.now() }]);
+      // Handle add new product logic would go here
+      console.log('Add product functionality not yet implemented');
     }
     setShowForm(false);
     setEditingProduct(null);

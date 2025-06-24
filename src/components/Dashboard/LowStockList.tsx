@@ -1,42 +1,13 @@
 
 import React from 'react';
 import { AlertTriangle, Package } from 'lucide-react';
-
-interface LowStockItem {
-  id: number;
-  name: string;
-  currentStock: number;
-  minStock: number;
-  category: string;
-}
+import { useData } from '../../contexts/DataContext';
 
 const LowStockList = () => {
-  // Mock low stock data
-  const lowStockItems: LowStockItem[] = [
-    {
-      id: 1,
-      name: 'Jasmine Incense Sticks',
-      currentStock: 5,
-      minStock: 20,
-      category: 'Incense'
-    },
-    {
-      id: 2,
-      name: 'Rose Incense Sticks',
-      currentStock: 8,
-      minStock: 25,
-      category: 'Incense'
-    },
-    {
-      id: 3,
-      name: 'Sandalwood Incense Sticks',
-      currentStock: 12,
-      minStock: 30,
-      category: 'Incense'
-    }
-  ];
+  const { getLowStockProducts } = useData();
+  const lowStockItems = getLowStockProducts();
 
-  const getStockLevel = (current: number, min: number) => {
+  const getStockLevel = (current: number, min: number = 20) => {
     const percentage = (current / min) * 100;
     if (percentage <= 25) return { color: 'bg-red-500', level: 'Critical' };
     if (percentage <= 50) return { color: 'bg-orange-500', level: 'Low' };
@@ -56,7 +27,7 @@ const LowStockList = () => {
       {lowStockItems.length > 0 ? (
         <div className="space-y-3">
           {lowStockItems.map((item) => {
-            const stockInfo = getStockLevel(item.currentStock, item.minStock);
+            const stockInfo = getStockLevel(item.stockQuantity, 20);
             return (
               <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                 <div className="flex items-center space-x-3">
@@ -71,7 +42,7 @@ const LowStockList = () => {
                 <div className="text-right">
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-bold text-gray-900">
-                      {item.currentStock}/{item.minStock}
+                      {item.stockQuantity}/20
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${stockInfo.color}`}>
                       {stockInfo.level}
@@ -80,7 +51,7 @@ const LowStockList = () => {
                   <div className="mt-1 w-16 bg-gray-200 rounded-full h-1.5">
                     <div 
                       className={`h-1.5 rounded-full ${stockInfo.color}`}
-                      style={{ width: `${Math.min((item.currentStock / item.minStock) * 100, 100)}%` }}
+                      style={{ width: `${Math.min((item.stockQuantity / 20) * 100, 100)}%` }}
                     ></div>
                   </div>
                 </div>

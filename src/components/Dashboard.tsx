@@ -2,8 +2,11 @@ import React from 'react';
 import { Users, Package, ShoppingCart, FileText, DollarSign, TrendingUp, Building2 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from 'recharts';
 import LowStockList from './Dashboard/LowStockList';
+import { useData } from '../contexts/DataContext';
 
 const Dashboard = () => {
+  const { products, salesOrders, invoices } = useData();
+
   // Mock data for incense sales
   const incenseSalesData = [
     { name: 'Lavender', value: 35, color: '#8B5CF6' },
@@ -42,11 +45,13 @@ const Dashboard = () => {
     { month: 'Jun', revenue: 5500, profit: 1650 },
   ];
 
-  // Correct counts
-  const totalProducts = 5;
-  const totalStock = 150 + 120 + 89 + 75 + 95;
-  const totalCustomers = 4;
-  const totalSuppliers = 3;
+  // Dynamic calculations based on actual data
+  const totalProducts = products.length;
+  const totalStock = products.reduce((sum, product) => sum + product.stockQuantity, 0);
+  const totalCustomers = 4; // This would come from customer data when available
+  const totalSuppliers = 3; // This would come from supplier data when available
+  const activeOrders = salesOrders.filter(order => order.status !== 'Delivered' && order.status !== 'Cancelled').length;
+  const monthlyRevenue = invoices.reduce((sum, invoice) => sum + invoice.amount, 0);
 
   const stats = [
     {
@@ -65,7 +70,7 @@ const Dashboard = () => {
     },
     {
       title: 'Active Orders',
-      value: '12',
+      value: activeOrders.toString(),
       icon: ShoppingCart,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-100',
@@ -86,7 +91,7 @@ const Dashboard = () => {
     },
     {
       title: 'Monthly Revenue',
-      value: '$12,450',
+      value: `$${monthlyRevenue.toFixed(2)}`,
       icon: DollarSign,
       color: 'bg-green-500',
       bgColor: 'bg-green-100',
@@ -100,29 +105,14 @@ const Dashboard = () => {
     },
   ];
 
-  const recentOrders = [
-    {
-      id: 'SO-001-2024',
-      customer: 'John Smith',
-      amount: 245.00,
-      status: 'Pending',
-      date: '2024-06-20',
-    },
-    {
-      id: 'SO-002-2024',
-      customer: 'Sarah Johnson',
-      amount: 189.50,
-      status: 'Confirmed',
-      date: '2024-06-19',
-    },
-    {
-      id: 'SO-003-2024',
-      customer: 'Mike Wilson',
-      amount: 567.25,
-      status: 'Shipped',
-      date: '2024-06-18',
-    },
-  ];
+  // Use actual recent orders from context
+  const recentOrders = salesOrders.slice(-3).reverse().map(order => ({
+    id: order.orderNumber,
+    customer: order.customerName,
+    amount: order.totalAmount,
+    status: order.status,
+    date: order.orderDate,
+  }));
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -244,7 +234,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
-            <span className="text-sm text-gray-500">Last 3 orders</span>
+            <span className="text-sm text-gray-500">Last {recentOrders.length} orders</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {recentOrders.map((order) => (
