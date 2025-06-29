@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -49,7 +48,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">BizManager</span>
+            <span className="text-xl font-bold text-gray-900">IncenseBizManager</span>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -59,6 +58,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </button>
         </div>
 
+        
         <nav className="mt-6 px-3">
           <div className="space-y-1">
             {navigation.map((item) => {
@@ -87,7 +87,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main content */}
       <div className="flex-1 lg:ml-0">
-        {/* Top bar */}
+        
         <div className="bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-6">
             <button
@@ -104,7 +104,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
 
-        {/* Page content */}
+        
         <main className="flex-1 p-6">
           {children}
         </main>
