@@ -1,11 +1,13 @@
+
 import React from 'react';
 import { Users, Package, ShoppingCart, FileText, DollarSign, TrendingUp, Building2 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from 'recharts';
 import LowStockList from './Dashboard/LowStockList';
+import DatabaseManager from './Database/DatabaseManager';
 import { useData } from '../contexts/DataContext';
 
 const Dashboard = () => {
-  const { products, salesOrders, invoices } = useData();
+  const { products, salesOrders, invoices, customers, suppliers } = useData();
 
   // Mock data for incense sales
   const incenseSalesData = [
@@ -48,8 +50,8 @@ const Dashboard = () => {
   // Dynamic calculations based on actual data
   const totalProducts = products.length;
   const totalStock = products.reduce((sum, product) => sum + product.stockQuantity, 0);
-  const totalCustomers = 4; // This would come from customer data when available
-  const totalSuppliers = 3; // This would come from supplier data when available
+  const totalCustomers = customers.length;
+  const totalSuppliers = suppliers.length;
   const activeOrders = salesOrders.filter(order => order.status !== 'Delivered' && order.status !== 'Cancelled').length;
   const monthlyRevenue = invoices.reduce((sum, invoice) => sum + invoice.amount, 0);
 
@@ -151,6 +153,9 @@ const Dashboard = () => {
           );
         })}
       </div>
+
+      {/* Database Management */}
+      <DatabaseManager />
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

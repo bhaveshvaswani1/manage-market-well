@@ -1,56 +1,29 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  costPrice: number;
-  sellingPrice: number;
-  stockQuantity: number;
-  category: string;
-  supplier: string;
-}
-
-interface OrderItem {
-  productName: string;
-  quantity: number;
-  price: number;
-}
-
-interface SalesOrder {
-  id: number;
-  orderNumber: string;
-  customerName: string;
-  companyName: string;
-  orderDate: string;
-  status: string;
-  totalAmount: number;
-  items: OrderItem[];
-}
-
-interface Invoice {
-  id: number;
-  invoiceNumber: string;
-  customerName: string;
-  companyName: string;
-  orderNumber: string;
-  invoiceDate: string;
-  dueDate: string;
-  amount: number;
-  status: 'Paid' | 'Pending' | 'Overdue';
-  items: OrderItem[];
-}
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { localDB, type Product, type SalesOrder, type Invoice, type Customer, type Supplier, type OrderItem } from '../utils/localDB';
 
 interface DataContextType {
   products: Product[];
   salesOrders: SalesOrder[];
   invoices: Invoice[];
+  customers: Customer[];
+  suppliers: Supplier[];
   updateProduct: (id: number, updates: Partial<Product>) => void;
+  addProduct: (product: Omit<Product, 'id'>) => void;
+  deleteProduct: (id: number) => void;
   addSalesOrder: (order: Omit<SalesOrder, 'id' | 'orderNumber'>) => void;
   addInvoice: (invoice: Omit<Invoice, 'id' | 'invoiceNumber'>) => void;
   updateInvoiceStatus: (id: number, status: 'Paid' | 'Pending' | 'Overdue', dueDate?: string) => void;
+  addCustomer: (customer: Omit<Customer, 'id'>) => void;
+  updateCustomer: (id: number, updates: Partial<Customer>) => void;
+  deleteCustomer: (id: number) => void;
+  addSupplier: (supplier: Omit<Supplier, 'id'>) => void;
+  updateSupplier: (id: number, updates: Partial<Supplier>) => void;
+  deleteSupplier: (id: number) => void;
   getLowStockProducts: () => Product[];
+  exportData: () => void;
+  importData: (file: File) => Promise<void>;
+  clearAllData: () => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -64,99 +37,45 @@ export const useData = () => {
 };
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      name: 'Lavender Incense Sticks',
-      description: 'Premium quality lavender scented incense sticks for relaxation',
-      costPrice: 12.50,
-      sellingPrice: 18.99,
-      stockQuantity: 150,
-      category: 'Incense',
-      supplier: 'Aromatic Supplies Co.',
-    },
-    {
-      id: 2,
-      name: 'Rose Incense Sticks',
-      description: 'Elegant rose fragrant incense sticks for romantic ambiance',
-      costPrice: 10.00,
-      sellingPrice: 15.00,
-      stockQuantity: 120,
-      category: 'Incense',
-      supplier: 'Floral Scents Ltd.',
-    },
-    {
-      id: 3,
-      name: 'Phool Incense Sticks',
-      description: 'Traditional flower blend incense sticks for spiritual practices',
-      costPrice: 11.25,
-      sellingPrice: 17.99,
-      stockQuantity: 89,
-      category: 'Incense',
-      supplier: 'Sacred Aromas Inc.',
-    },
-    {
-      id: 4,
-      name: 'Sandalwood Incense Sticks',
-      description: 'Pure sandalwood incense sticks for meditation and peace',
-      costPrice: 15.25,
-      sellingPrice: 22.99,
-      stockQuantity: 75,
-      category: 'Incense',
-      supplier: 'Premium Woods Co.',
-    },
-    {
-      id: 5,
-      name: 'Jasmine Incense Sticks',
-      description: 'Sweet jasmine scented incense sticks for calming atmosphere',
-      costPrice: 13.00,
-      sellingPrice: 19.50,
-      stockQuantity: 95,
-      category: 'Incense',
-      supplier: 'Exotic Fragrances Ltd.',
-    },
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [salesOrders, setSalesOrders] = useState<SalesOrder[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
-  const [salesOrders, setSalesOrders] = useState<SalesOrder[]>([
-    {
-      id: 1,
-      orderNumber: 'SO-001-2024',
-      customerName: 'John Smith',
-      companyName: 'Smith Enterprises',
-      orderDate: '2024-06-20',
-      status: 'Pending',
-      totalAmount: 245.00,
-      items: [
-        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
-        { productName: 'Rose Incense Sticks', quantity: 2, price: 15.00 },
-      ]
-    },
-  ]);
+  // Load data from local database on component mount
+  useEffect(() => {
+    const dbData = localDB.loadData();
+    setProducts(dbData.products);
+    setSalesOrders(dbData.salesOrders);
+    setInvoices(dbData.invoices);
+    setCustomers(dbData.customers);
+    setSuppliers(dbData.suppliers);
+  }, []);
 
-  const [invoices, setInvoices] = useState<Invoice[]>([
-    {
-      id: 1,
-      invoiceNumber: 'INV-001-2024',
-      customerName: 'John Smith',
-      companyName: 'Smith Enterprises',
-      orderNumber: 'SO-001-2024',
-      invoiceDate: '2024-06-20',
-      dueDate: '2024-07-20',
-      amount: 245.00,
-      status: 'Pending',
-      items: [
-        { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
-        { productName: 'Rose Incense Sticks', quantity: 2, price: 15.00 },
-      ]
-    },
-  ]);
-
+  // Product operations
   const updateProduct = (id: number, updates: Partial<Product>) => {
-    setProducts(prev => prev.map(product => 
+    const updatedProducts = products.map(product => 
       product.id === id ? { ...product, ...updates } : product
-    ));
+    );
+    setProducts(updatedProducts);
+    localDB.updateTable('products', updatedProducts);
   };
 
+  const addProduct = (productData: Omit<Product, 'id'>) => {
+    const newProduct = { ...productData, id: Date.now() };
+    const updatedProducts = [...products, newProduct];
+    setProducts(updatedProducts);
+    localDB.updateTable('products', updatedProducts);
+  };
+
+  const deleteProduct = (id: number) => {
+    const updatedProducts = products.filter(product => product.id !== id);
+    setProducts(updatedProducts);
+    localDB.updateTable('products', updatedProducts);
+  };
+
+  // Sales Order operations
   const addSalesOrder = (orderData: Omit<SalesOrder, 'id' | 'orderNumber'>) => {
     const newOrderNumber = `SO-${String(salesOrders.length + 1).padStart(3, '0')}-2024`;
     const newOrder = {
@@ -175,7 +94,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     });
 
-    setSalesOrders(prev => [...prev, newOrder]);
+    const updatedOrders = [...salesOrders, newOrder];
+    setSalesOrders(updatedOrders);
+    localDB.updateTable('salesOrders', updatedOrders);
 
     // Auto-generate invoice
     const newInvoice = {
@@ -183,7 +104,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       companyName: orderData.companyName,
       orderNumber: newOrderNumber,
       invoiceDate: new Date().toISOString().split('T')[0],
-      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       amount: orderData.totalAmount,
       status: 'Pending' as const,
       items: orderData.items,
@@ -192,6 +113,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     addInvoice(newInvoice);
   };
 
+  // Invoice operations
   const addInvoice = (invoiceData: Omit<Invoice, 'id' | 'invoiceNumber'>) => {
     const newInvoiceNumber = `INV-${String(invoices.length + 1).padStart(3, '0')}-2024`;
     const newInvoice = {
@@ -200,19 +122,93 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       invoiceNumber: newInvoiceNumber,
     };
 
-    setInvoices(prev => [...prev, newInvoice]);
+    const updatedInvoices = [...invoices, newInvoice];
+    setInvoices(updatedInvoices);
+    localDB.updateTable('invoices', updatedInvoices);
   };
 
   const updateInvoiceStatus = (id: number, status: 'Paid' | 'Pending' | 'Overdue', dueDate?: string) => {
-    setInvoices(prev => prev.map(invoice => 
+    const updatedInvoices = invoices.map(invoice => 
       invoice.id === id 
         ? { ...invoice, status, ...(dueDate && { dueDate }) }
         : invoice
-    ));
+    );
+    setInvoices(updatedInvoices);
+    localDB.updateTable('invoices', updatedInvoices);
   };
 
+  // Customer operations
+  const addCustomer = (customerData: Omit<Customer, 'id'>) => {
+    const newCustomer = { ...customerData, id: Date.now() };
+    const updatedCustomers = [...customers, newCustomer];
+    setCustomers(updatedCustomers);
+    localDB.updateTable('customers', updatedCustomers);
+  };
+
+  const updateCustomer = (id: number, updates: Partial<Customer>) => {
+    const updatedCustomers = customers.map(customer => 
+      customer.id === id ? { ...customer, ...updates } : customer
+    );
+    setCustomers(updatedCustomers);
+    localDB.updateTable('customers', updatedCustomers);
+  };
+
+  const deleteCustomer = (id: number) => {
+    const updatedCustomers = customers.filter(customer => customer.id !== id);
+    setCustomers(updatedCustomers);
+    localDB.updateTable('customers', updatedCustomers);
+  };
+
+  // Supplier operations
+  const addSupplier = (supplierData: Omit<Supplier, 'id'>) => {
+    const newSupplier = { ...supplierData, id: Date.now() };
+    const updatedSuppliers = [...suppliers, newSupplier];
+    setSuppliers(updatedSuppliers);
+    localDB.updateTable('suppliers', updatedSuppliers);
+  };
+
+  const updateSupplier = (id: number, updates: Partial<Supplier>) => {
+    const updatedSuppliers = suppliers.map(supplier => 
+      supplier.id === id ? { ...supplier, ...updates } : supplier
+    );
+    setSuppliers(updatedSuppliers);
+    localDB.updateTable('suppliers', updatedSuppliers);
+  };
+
+  const deleteSupplier = (id: number) => {
+    const updatedSuppliers = suppliers.filter(supplier => supplier.id !== id);
+    setSuppliers(updatedSuppliers);
+    localDB.updateTable('suppliers', updatedSuppliers);
+  };
+
+  // Utility functions
   const getLowStockProducts = () => {
     return products.filter(product => product.stockQuantity <= 20);
+  };
+
+  const exportData = () => {
+    localDB.exportData();
+  };
+
+  const importData = async (file: File) => {
+    await localDB.importData(file);
+    // Reload data after import
+    const dbData = localDB.loadData();
+    setProducts(dbData.products);
+    setSalesOrders(dbData.salesOrders);
+    setInvoices(dbData.invoices);
+    setCustomers(dbData.customers);
+    setSuppliers(dbData.suppliers);
+  };
+
+  const clearAllData = () => {
+    localDB.clearData();
+    const dbData = localDB.loadData(); // This will load default data
+    setProducts(dbData.products);
+    setSalesOrders(dbData.salesOrders);
+    setInvoices(dbData.invoices);
+    setCustomers(dbData.customers);
+    setSuppliers(dbData.suppliers);
   };
 
   return (
@@ -220,11 +216,24 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       products,
       salesOrders,
       invoices,
+      customers,
+      suppliers,
       updateProduct,
+      addProduct,
+      deleteProduct,
       addSalesOrder,
       addInvoice,
       updateInvoiceStatus,
+      addCustomer,
+      updateCustomer,
+      deleteCustomer,
+      addSupplier,
+      updateSupplier,
+      deleteSupplier,
       getLowStockProducts,
+      exportData,
+      importData,
+      clearAllData,
     }}>
       {children}
     </DataContext.Provider>
