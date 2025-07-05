@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Save, X } from 'lucide-react';
 
@@ -45,7 +46,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) newErrors.name = 'Customer name is required';
+    if (!formData.name.trim()) newErrors.name = 'Client name is required';
     if (!formData.companyName.trim()) newErrors.companyName = 'Company name is required';
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
@@ -78,10 +79,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
         </button>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {customer ? 'Edit Customer' : 'Add New Customer'}
+            {customer ? 'Edit Client' : 'Add New Client'}
           </h1>
           <p className="text-gray-600 mt-1">
-            {customer ? 'Update customer information' : 'Add a new customer to your database'}
+            {customer ? 'Update client information' : 'Add a new client to your database'}
           </p>
         </div>
       </div>
@@ -97,7 +98,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Customer Name *
+                Client Name *
               </label>
               <input
                 type="text"
@@ -107,7 +108,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.name ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="Enter customer name"
+                placeholder="Enter client name"
               />
               {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
             </div>
@@ -203,7 +204,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
             >
               <Save className="w-4 h-4" />
-              <span>{customer ? 'Update Customer' : 'Save Customer'}</span>
+              <span>{customer ? 'Update Client' : 'Save Client'}</span>
             </button>
           </div>
         </form>

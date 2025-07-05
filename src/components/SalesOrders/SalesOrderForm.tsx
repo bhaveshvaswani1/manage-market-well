@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Save, X, Plus, Minus } from 'lucide-react';
 
@@ -12,6 +13,7 @@ interface SalesOrder {
   customerName: string;
   companyName: string;
   orderDate: string;
+  dueDate: string;
   status: string;
   items: OrderItem[];
   totalAmount?: number;
@@ -28,6 +30,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
     customerName: order?.customerName || '',
     companyName: order?.companyName || '',
     orderDate: order?.orderDate || new Date().toISOString().split('T')[0],
+    dueDate: order?.dueDate || '',
     status: order?.status || 'Pending',
     items: order?.items || [{ productName: '', quantity: 1, price: 0 }],
   });
@@ -122,9 +125,15 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.customerName.trim()) newErrors.customerName = 'Customer is required';
+    if (!formData.customerName.trim()) newErrors.customerName = 'Client is required';
     if (!formData.orderDate) newErrors.orderDate = 'Order date is required';
+    if (!formData.dueDate) newErrors.dueDate = 'Due date is required';
     if (!formData.status) newErrors.status = 'Status is required';
+
+    // Validate that due date is after order date
+    if (formData.orderDate && formData.dueDate && formData.dueDate < formData.orderDate) {
+      newErrors.dueDate = 'Due date must be after order date';
+    }
 
     // Validate items
     formData.items.forEach((item, index) => {
@@ -176,14 +185,14 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Order Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-3">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Information</h3>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Customer *
+                Client *
               </label>
               <select
                 name="customerName"
@@ -193,7 +202,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
                   errors.customerName ? 'border-red-300' : 'border-gray-300'
                 }`}
               >
-                <option value="">Select customer</option>
+                <option value="">Select client</option>
                 {customers.map(customer => (
                   <option key={customer.name} value={customer.name}>
                     {customer.name} - {customer.company}
@@ -217,6 +226,22 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
                 }`}
               />
               {errors.orderDate && <p className="text-red-600 text-sm mt-1">{errors.orderDate}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Due Date *
+              </label>
+              <input
+                type="date"
+                name="dueDate"
+                value={formData.dueDate}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  errors.dueDate ? 'border-red-300' : 'border-gray-300'
+                }`}
+              />
+              {errors.dueDate && <p className="text-red-600 text-sm mt-1">{errors.dueDate}</p>}
             </div>
 
             <div>

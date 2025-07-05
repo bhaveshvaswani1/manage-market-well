@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
+import BankAccountForm from '../BankAccount/BankAccountForm';
 
 interface BankAccount {
   id: number;
@@ -30,6 +31,9 @@ const ClientDetail = () => {
     }
   ]);
 
+  const [showBankForm, setShowBankForm] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
+
   const client = customers.find(c => c.id === parseInt(id || '0'));
 
   if (!client) {
@@ -38,7 +42,7 @@ const ClientDetail = () => {
         <div className="text-center">
           <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Client not found</h3>
-          <Link to="/customers" className="text-blue-600 hover:text-blue-700">
+          <Link to="/clients" className="text-blue-600 hover:text-blue-700">
             Return to Clients
           </Link>
         </div>
@@ -51,6 +55,33 @@ const ClientDetail = () => {
     order.customerName === client.name
   );
 
+  const handleAddAccount = () => {
+    setEditingAccount(null);
+    setShowBankForm(true);
+  };
+
+  const handleEditAccount = (account: BankAccount) => {
+    setEditingAccount(account);
+    setShowBankForm(true);
+  };
+
+  const handleSaveAccount = (accountData: BankAccount) => {
+    if (editingAccount) {
+      setBankAccounts(accounts => 
+        accounts.map(acc => 
+          acc.id === editingAccount.id ? { ...accountData, id: editingAccount.id } : acc
+        )
+      );
+    } else {
+      setBankAccounts(accounts => [
+        ...accounts, 
+        { ...accountData, id: Date.now() }
+      ]);
+    }
+    setShowBankForm(false);
+    setEditingAccount(null);
+  };
+
   const maskAccountNumber = (accountNumber: string) => {
     if (accountNumber.length <= 4) return accountNumber;
     return '****' + accountNumber.slice(-4);
@@ -61,7 +92,7 @@ const ClientDetail = () => {
       {/* Header */}
       <div className="flex items-center space-x-4">
         <button
-          onClick={() => navigate('/customers')}
+          onClick={() => navigate('/clients')}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -195,7 +226,7 @@ const ClientDetail = () => {
                   <CardTitle>Bank Accounts</CardTitle>
                   <CardDescription>Client's registered bank accounts</CardDescription>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleAddAccount}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Account
                 </Button>
@@ -207,14 +238,14 @@ const ClientDetail = () => {
                   <div key={account.id} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-medium text-gray-900">{account.bankName}</h4>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleEditAccount(account)}>
                         <Edit className="w-4 h-4" />
                       </Button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <label className="text-gray-600">Account Number</label>
-                        <p className="font-medium">{account.accountNumber}</p>
+                        <p className="font-medium">{maskAccountNumber(account.accountNumber)}</p>
                       </div>
                       <div>
                         <label className="text-gray-600">IFSC Code</label>
@@ -232,6 +263,18 @@ const ClientDetail = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Bank Account Form Modal */}
+      {showBankForm && (
+        <BankAccountForm
+          account={editingAccount}
+          onSave={handleSaveAccount}
+          onCancel={() => {
+            setShowBankForm(false);
+            setEditingAccount(null);
+          }}
+        />
+      )}
     </div>
   );
 };

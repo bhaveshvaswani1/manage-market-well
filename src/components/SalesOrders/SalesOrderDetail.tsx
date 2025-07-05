@@ -68,7 +68,7 @@ const SalesOrderDetail = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-600">Order ID</label>
                   <p className="text-lg font-semibold text-gray-900">{order.orderNumber}</p>
@@ -76,6 +76,10 @@ const SalesOrderDetail = () => {
                 <div>
                   <label className="text-sm font-medium text-gray-600">Order Date</label>
                   <p className="text-gray-900">{new Date(order.orderDate).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Due Date</label>
+                  <p className="text-gray-900">{order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'Not set'}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-600">Status</label>

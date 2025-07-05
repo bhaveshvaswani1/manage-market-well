@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
+import BankAccountForm from '../BankAccount/BankAccountForm';
 
 interface BankAccount {
   id: number;
@@ -29,6 +30,9 @@ const SupplierDetail = () => {
       accountType: 'Current'
     }
   ]);
+
+  const [showBankForm, setShowBankForm] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
 
   const supplier = suppliers.find(s => s.id === parseInt(id || '0'));
 
@@ -53,6 +57,38 @@ const SupplierDetail = () => {
       sp.toLowerCase().includes(product.name.toLowerCase().split(' ')[0])
     )
   );
+
+  const handleAddAccount = () => {
+    setEditingAccount(null);
+    setShowBankForm(true);
+  };
+
+  const handleEditAccount = (account: BankAccount) => {
+    setEditingAccount(account);
+    setShowBankForm(true);
+  };
+
+  const handleSaveAccount = (accountData: BankAccount) => {
+    if (editingAccount) {
+      setBankAccounts(accounts => 
+        accounts.map(acc => 
+          acc.id === editingAccount.id ? { ...accountData, id: editingAccount.id } : acc
+        )
+      );
+    } else {
+      setBankAccounts(accounts => [
+        ...accounts, 
+        { ...accountData, id: Date.now() }
+      ]);
+    }
+    setShowBankForm(false);
+    setEditingAccount(null);
+  };
+
+  const maskAccountNumber = (accountNumber: string) => {
+    if (accountNumber.length <= 4) return accountNumber;
+    return '****' + accountNumber.slice(-4);
+  };
 
   return (
     <div className="space-y-6">
@@ -185,7 +221,7 @@ const SupplierDetail = () => {
                   <CardTitle>Bank Accounts</CardTitle>
                   <CardDescription>Supplier's registered bank accounts</CardDescription>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleAddAccount}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Account
                 </Button>
@@ -197,14 +233,14 @@ const SupplierDetail = () => {
                   <div key={account.id} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-medium text-gray-900">{account.bankName}</h4>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleEditAccount(account)}>
                         <Edit className="w-4 h-4" />
                       </Button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <label className="text-gray-600">Account Number</label>
-                        <p className="font-medium">{account.accountNumber}</p>
+                        <p className="font-medium">{maskAccountNumber(account.accountNumber)}</p>
                       </div>
                       <div>
                         <label className="text-gray-600">IFSC Code</label>
@@ -222,6 +258,18 @@ const SupplierDetail = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Bank Account Form Modal */}
+      {showBankForm && (
+        <BankAccountForm
+          account={editingAccount}
+          onSave={handleSaveAccount}
+          onCancel={() => {
+            setShowBankForm(false);
+            setEditingAccount(null);
+          }}
+        />
+      )}
     </div>
   );
 };
