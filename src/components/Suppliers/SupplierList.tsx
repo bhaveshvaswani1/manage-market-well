@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, Search, Edit, Trash2, Building2, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -9,7 +8,7 @@ const SupplierList = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const { suppliers, updateSuppliers } = useData();
+  const { suppliers, addSupplier, updateSupplier, deleteSupplier } = useData();
 
   const filteredSuppliers = suppliers.filter(supplier => {
     const searchLower = searchTerm.toLowerCase();
@@ -23,13 +22,9 @@ const SupplierList = () => {
 
   const handleSave = (supplierData) => {
     if (editingSupplier) {
-      const updatedSuppliers = suppliers.map(s => 
-        s.id === editingSupplier.id ? { ...supplierData, id: editingSupplier.id } : s
-      );
-      updateSuppliers(updatedSuppliers);
+      updateSupplier(editingSupplier.id, supplierData);
     } else {
-      const newSupplier = { ...supplierData, id: Date.now() };
-      updateSuppliers([...suppliers, newSupplier]);
+      addSupplier(supplierData);
     }
     setShowForm(false);
     setEditingSupplier(null);
@@ -37,8 +32,7 @@ const SupplierList = () => {
 
   const handleDelete = (id) => {
     if (confirm('Are you sure you want to delete this supplier?')) {
-      const updatedSuppliers = suppliers.filter(s => s.id !== id);
-      updateSuppliers(updatedSuppliers);
+      deleteSupplier(id);
     }
   };
 
