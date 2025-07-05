@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Users, Mail, Phone } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Users, Mail, Phone, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CustomerForm from './CustomerForm';
 
 const CustomerList = () => {
@@ -165,6 +165,13 @@ const CustomerList = () => {
                       {customerTier.label}
                     </span>
                     <div className="flex space-x-1">
+                      <Link
+                        to={`/clients/${customer.id}`}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                        title="View Details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
                       <button
                         onClick={() => handleEdit(customer)}
                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
@@ -181,6 +188,7 @@ const CustomerList = () => {
                   </div>
                 </div>
 
+                
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Mail className="w-4 h-4" />
