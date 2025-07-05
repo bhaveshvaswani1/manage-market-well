@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -18,7 +19,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Products', href: '/products', icon: Package },
-    { name: 'Customers', href: '/customers', icon: Users },
+    { name: 'Clients', href: '/clients', icon: Users },
     { name: 'Suppliers', href: '/suppliers', icon: Building2 },
     { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
     { name: 'Invoices', href: '/invoices', icon: FileText },

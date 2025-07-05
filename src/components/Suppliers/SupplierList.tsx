@@ -1,47 +1,15 @@
 
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Building2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Building2, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useData } from '../../contexts/DataContext';
 import SupplierForm from './SupplierForm';
-
-interface Supplier {
-  id: number;
-  name: string;
-  companyName: string;
-  email: string;
-  phone: string;
-  address: string;
-  contactPerson: string;
-  suppliedProducts: string[];
-}
 
 const SupplierList = () => {
   const [showForm, setShowForm] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [editingSupplier, setEditingSupplier] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Mock supplier data
-  const [suppliers, setSuppliers] = useState<Supplier[]>([
-    {
-      id: 1,
-      name: 'Mumbai Incense Co.',
-      companyName: 'Mumbai Incense Private Ltd.',
-      email: 'contact@mumbaiincense.com',
-      phone: '+91-22-12345678',
-      address: 'Mumbai, Maharashtra, India',
-      contactPerson: 'Raj Patel',
-      suppliedProducts: ['Lavender', 'Rose', 'Sandalwood']
-    },
-    {
-      id: 2,
-      name: 'Delhi Fragrance Suppliers',
-      companyName: 'Delhi Fragrance Ltd.',
-      email: 'info@delhifragrance.com',
-      phone: '+91-11-87654321',
-      address: 'New Delhi, India',
-      contactPerson: 'Priya Sharma',
-      suppliedProducts: ['Jasmine', 'Phool']
-    },
-  ]);
+  const { suppliers, updateSuppliers } = useData();
 
   const filteredSuppliers = suppliers.filter(supplier => {
     const searchLower = searchTerm.toLowerCase();
@@ -53,21 +21,24 @@ const SupplierList = () => {
     );
   });
 
-  const handleSave = (supplierData: Omit<Supplier, 'id'>) => {
+  const handleSave = (supplierData) => {
     if (editingSupplier) {
-      setSuppliers(suppliers.map(s => 
+      const updatedSuppliers = suppliers.map(s => 
         s.id === editingSupplier.id ? { ...supplierData, id: editingSupplier.id } : s
-      ));
+      );
+      updateSuppliers(updatedSuppliers);
     } else {
-      setSuppliers([...suppliers, { ...supplierData, id: Date.now() }]);
+      const newSupplier = { ...supplierData, id: Date.now() };
+      updateSuppliers([...suppliers, newSupplier]);
     }
     setShowForm(false);
     setEditingSupplier(null);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id) => {
     if (confirm('Are you sure you want to delete this supplier?')) {
-      setSuppliers(suppliers.filter(s => s.id !== id));
+      const updatedSuppliers = suppliers.filter(s => s.id !== id);
+      updateSuppliers(updatedSuppliers);
     }
   };
 
@@ -174,6 +145,13 @@ const SupplierList = () => {
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center justify-end space-x-2">
+                      <Link
+                        to={`/suppliers/${supplier.id}`}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                        title="View Details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
                       <button
                         onClick={() => {
                           setEditingSupplier(supplier);
