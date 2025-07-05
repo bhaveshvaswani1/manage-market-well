@@ -23,6 +23,7 @@ export interface SalesOrder {
   customerName: string;
   companyName: string;
   orderDate: string;
+  dueDate?: string;
   status: string;
   totalAmount: number;
   items: OrderItem[];
