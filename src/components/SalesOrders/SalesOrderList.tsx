@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import { Plus, Search, Eye, Edit, FileText, ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import SalesOrderForm from './SalesOrderForm';
 import { useData } from '../../contexts/DataContext';
 
@@ -107,7 +109,12 @@ const SalesOrderList = () => {
               {filteredOrders.map((order) => (
                 <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150">
                   <td className="py-4 px-6">
-                    <div className="font-medium text-gray-900">{order.orderNumber}</div>
+                    <Link 
+                      to={`/sales-orders/${order.id}`}
+                      className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      {order.orderNumber}
+                    </Link>
                   </td>
                   <td className="py-4 px-6">
                     <div>
@@ -137,6 +144,13 @@ const SalesOrderList = () => {
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center justify-end space-x-2">
+                      <Link
+                        to={`/sales-orders/${order.id}`}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                        title="View Order Details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
                       <button
                         onClick={() => handleGenerateInvoice(order)}
                         className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"

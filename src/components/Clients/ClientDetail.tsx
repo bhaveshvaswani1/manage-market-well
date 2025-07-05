@@ -1,0 +1,239 @@
+
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, User, ShoppingBag, CreditCard, Plus, Edit } from 'lucide-react';
+import { useData } from '../../contexts/DataContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Button } from '../ui/button';
+
+interface BankAccount {
+  id: number;
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+  accountType: string;
+}
+
+const ClientDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { customers, salesOrders } = useData();
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([
+    {
+      id: 1,
+      bankName: 'State Bank of India',
+      accountNumber: '****1234',
+      ifscCode: 'SBIN0001234',
+      accountType: 'Savings'
+    }
+  ]);
+
+  const client = customers.find(c => c.id === parseInt(id || '0'));
+
+  if (!client) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Client not found</h3>
+          <Link to="/customers" className="text-blue-600 hover:text-blue-700">
+            Return to Clients
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Get purchase history for this client
+  const clientPurchases = salesOrders.filter(order => 
+    order.customerName === client.name
+  );
+
+  const maskAccountNumber = (accountNumber: string) => {
+    if (accountNumber.length <= 4) return accountNumber;
+    return '****' + accountNumber.slice(-4);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={() => navigate('/customers')}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">{client.name}</h1>
+          <p className="text-gray-600 mt-1">Client Details & Purchase History</p>
+        </div>
+      </div>
+
+      {/* Client Info Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <User className="w-5 h-5" />
+            <span>Client Information</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+              <label className="text-sm font-medium text-gray-600">Name</label>
+              <p className="text-lg font-semibold text-gray-900">{client.name}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-600">Phone</label>
+              <p className="text-gray-900">{client.phone}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-600">Email</label>
+              <p className="text-gray-900">{client.email}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-600">Company</label>
+              <p className="text-gray-900">{client.company}</p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <label className="text-sm font-medium text-gray-600">Address</label>
+            <p className="text-gray-900 mt-1">{client.address}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabs for Purchase History and Bank Accounts */}
+      <Tabs defaultValue="purchases" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="purchases" className="flex items-center space-x-2">
+            <ShoppingBag className="w-4 h-4" />
+            <span>Purchase History ({clientPurchases.length})</span>
+          </TabsTrigger>
+          <TabsTrigger value="accounts" className="flex items-center space-x-2">
+            <CreditCard className="w-4 h-4" />
+            <span>Bank Accounts ({bankAccounts.length})</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="purchases">
+          <Card>
+            <CardHeader>
+              <CardTitle>Purchase History</CardTitle>
+              <CardDescription>All orders placed by this client</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {clientPurchases.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order Number</TableHead>
+                      <TableHead>Products</TableHead>
+                      <TableHead>Total Amount</TableHead>
+                      <TableHead>Order Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {clientPurchases.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium">{order.orderNumber}</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            {order.items.map((item, index) => (
+                              <div key={index} className="text-sm">
+                                {item.productName} x {item.quantity}
+                              </div>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-semibold text-green-600">
+                          ${order.totalAmount.toFixed(2)}
+                        </TableCell>
+                        <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                            order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
+                            order.status === 'Confirmed' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            to={`/sales-orders/${order.id}`}
+                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                          >
+                            View Order
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-8">
+                  <ShoppingBag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No purchase history found for this client</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="accounts">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Bank Accounts</CardTitle>
+                  <CardDescription>Client's registered bank accounts</CardDescription>
+                </div>
+                <Button variant="outline" size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Account
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {bankAccounts.map((account) => (
+                  <div key={account.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-gray-900">{account.bankName}</h4>
+                      <Button variant="ghost" size="sm">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <label className="text-gray-600">Account Number</label>
+                        <p className="font-medium">{account.accountNumber}</p>
+                      </div>
+                      <div>
+                        <label className="text-gray-600">IFSC Code</label>
+                        <p className="font-medium">{account.ifscCode}</p>
+                      </div>
+                      <div>
+                        <label className="text-gray-600">Account Type</label>
+                        <p className="font-medium">{account.accountType}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default ClientDetail;
