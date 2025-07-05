@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, ShoppingBag, CreditCard, Plus, Edit } from 'lucide-react';
+import { ArrowLeft, User, ShoppingBag, CreditCard, Plus, Edit, DollarSign } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -20,7 +19,7 @@ interface BankAccount {
 const ClientDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { customers, salesOrders } = useData();
+  const { customers, salesOrders, getClientTotalDeals } = useData();
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([
     {
       id: 1,
@@ -54,6 +53,8 @@ const ClientDetail = () => {
   const clientPurchases = salesOrders.filter(order => 
     order.customerName === client.name
   );
+
+  const totalDeals = getClientTotalDeals(client.name);
 
   const handleAddAccount = () => {
     setEditingAccount(null);
@@ -101,6 +102,51 @@ const ClientDetail = () => {
           <h1 className="text-3xl font-bold text-gray-900">{client.name}</h1>
           <p className="text-gray-600 mt-1">Client Details & Purchase History</p>
         </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{clientPurchases.length}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-blue-100">
+                <ShoppingBag className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Deal Value</p>
+                <p className="text-3xl font-bold text-green-600 mt-1">${totalDeals.toFixed(2)}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-green-100">
+                <DollarSign className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Bank Accounts</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{bankAccounts.length}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-purple-100">
+                <CreditCard className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Client Info Card */}
@@ -154,7 +200,7 @@ const ClientDetail = () => {
           <Card>
             <CardHeader>
               <CardTitle>Purchase History</CardTitle>
-              <CardDescription>All orders placed by this client</CardDescription>
+              <CardDescription>All orders placed by this client - Total Value: ${totalDeals.toFixed(2)}</CardDescription>
             </CardHeader>
             <CardContent>
               {clientPurchases.length > 0 ? (

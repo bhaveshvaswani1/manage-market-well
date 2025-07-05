@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { localDB, type Product, type SalesOrder, type Invoice, type Customer, type Supplier, type OrderItem } from '../utils/localDB';
 
@@ -21,6 +20,8 @@ interface DataContextType {
   updateSupplier: (id: number, updates: Partial<Supplier>) => void;
   deleteSupplier: (id: number) => void;
   getLowStockProducts: () => Product[];
+  getClientTotalDeals: (clientName: string) => number;
+  getSupplierTotalDeals: (supplierName: string) => number;
   exportData: () => void;
   importData: (file: File) => Promise<void>;
   clearAllData: () => void;
@@ -186,6 +187,29 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return products.filter(product => product.stockQuantity <= 20);
   };
 
+  const getClientTotalDeals = (clientName: string) => {
+    return salesOrders
+      .filter(order => order.customerName === clientName)
+      .reduce((total, order) => total + order.totalAmount, 0);
+  };
+
+  const getSupplierTotalDeals = (supplierName: string) => {
+    // Calculate based on products supplied by this supplier
+    const supplierProducts = products.filter(product => 
+      product.supplier === supplierName
+    );
+    
+    let totalDeals = 0;
+    supplierProducts.forEach(product => {
+      // Calculate total cost based on stock movements (approximation)
+      // This is a simplified calculation - in a real app you'd track purchase orders
+      const estimatedPurchases = Math.max(0, 200 - product.stockQuantity); // Assuming initial stock was 200
+      totalDeals += estimatedPurchases * product.costPrice;
+    });
+    
+    return totalDeals;
+  };
+
   const exportData = () => {
     localDB.exportData();
   };
@@ -231,6 +255,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updateSupplier,
       deleteSupplier,
       getLowStockProducts,
+      getClientTotalDeals,
+      getSupplierTotalDeals,
       exportData,
       importData,
       clearAllData,

@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Package, CreditCard, Plus, Edit } from 'lucide-react';
+import { ArrowLeft, Building2, Package, CreditCard, Plus, Edit, DollarSign } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -20,7 +19,7 @@ interface BankAccount {
 const SupplierDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { suppliers, products } = useData();
+  const { suppliers, products, getSupplierTotalDeals } = useData();
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([
     {
       id: 1,
@@ -57,6 +56,8 @@ const SupplierDetail = () => {
       sp.toLowerCase().includes(product.name.toLowerCase().split(' ')[0])
     )
   );
+
+  const totalDeals = getSupplierTotalDeals(supplier.name);
 
   const handleAddAccount = () => {
     setEditingAccount(null);
@@ -104,6 +105,51 @@ const SupplierDetail = () => {
           <h1 className="text-3xl font-bold text-gray-900">{supplier.name}</h1>
           <p className="text-gray-600 mt-1">Supplier Details & Product History</p>
         </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Products Supplied</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{suppliedProducts.length}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-blue-100">
+                <Package className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Deal Value</p>
+                <p className="text-3xl font-bold text-green-600 mt-1">${totalDeals.toFixed(2)}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-green-100">
+                <DollarSign className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Bank Accounts</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{bankAccounts.length}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-purple-100">
+                <CreditCard className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Supplier Info Card */}
@@ -157,7 +203,7 @@ const SupplierDetail = () => {
           <Card>
             <CardHeader>
               <CardTitle>Supplied Products</CardTitle>
-              <CardDescription>All products supplied by this vendor</CardDescription>
+              <CardDescription>All products supplied by this vendor - Total Deal Value: ${totalDeals.toFixed(2)}</CardDescription>
             </CardHeader>
             <CardContent>
               {suppliedProducts.length > 0 ? (
