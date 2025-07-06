@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { localDB, type Product, type SalesOrder, type Invoice, type Customer, type Supplier, type OrderItem } from '../utils/localDB';
+import { localDB, type Product, type SalesOrder, type Invoice, type Customer, type Supplier, type BankAccount, type OrderItem } from '../utils/localDB';
 
 interface DataContextType {
   products: Product[];
@@ -7,6 +7,7 @@ interface DataContextType {
   invoices: Invoice[];
   customers: Customer[];
   suppliers: Supplier[];
+  bankAccounts: BankAccount[];
   updateProduct: (id: number, updates: Partial<Product>) => void;
   addProduct: (product: Omit<Product, 'id'>) => void;
   deleteProduct: (id: number) => void;
@@ -19,6 +20,11 @@ interface DataContextType {
   addSupplier: (supplier: Omit<Supplier, 'id'>) => void;
   updateSupplier: (id: number, updates: Partial<Supplier>) => void;
   deleteSupplier: (id: number) => void;
+  addBankAccount: (account: Omit<BankAccount, 'id'>) => void;
+  updateBankAccount: (id: number, updates: Partial<BankAccount>) => void;
+  deleteBankAccount: (id: number) => void;
+  getBankAccountsByOwner: (ownerType: 'customer' | 'supplier', ownerId: number) => BankAccount[];
+  getBankAccountRevenue: (bankAccountId: number) => number;
   getLowStockProducts: () => Product[];
   getClientTotalDeals: (clientName: string) => number;
   getSupplierTotalDeals: (supplierName: string) => number;
@@ -43,15 +49,18 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
 
   // Load data from local database on component mount
   useEffect(() => {
     const dbData = localDB.loadData();
+    console.log('Loading data from database:', dbData);
     setProducts(dbData.products);
     setSalesOrders(dbData.salesOrders);
     setInvoices(dbData.invoices);
     setCustomers(dbData.customers);
     setSuppliers(dbData.suppliers);
+    setBankAccounts(dbData.bankAccounts || []);
   }, []);
 
   // Product operations
@@ -182,6 +191,40 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localDB.updateTable('suppliers', updatedSuppliers);
   };
 
+  // Bank Account operations
+  const addBankAccount = (accountData: Omit<BankAccount, 'id'>) => {
+    const newAccount = { ...accountData, id: Date.now() };
+    const updatedAccounts = [...bankAccounts, newAccount];
+    setBankAccounts(updatedAccounts);
+    localDB.updateTable('bankAccounts', updatedAccounts);
+  };
+
+  const updateBankAccount = (id: number, updates: Partial<BankAccount>) => {
+    const updatedAccounts = bankAccounts.map(account => 
+      account.id === id ? { ...account, ...updates } : account
+    );
+    setBankAccounts(updatedAccounts);
+    localDB.updateTable('bankAccounts', updatedAccounts);
+  };
+
+  const deleteBankAccount = (id: number) => {
+    const updatedAccounts = bankAccounts.filter(account => account.id !== id);
+    setBankAccounts(updatedAccounts);
+    localDB.updateTable('bankAccounts', updatedAccounts);
+  };
+
+  const getBankAccountsByOwner = (ownerType: 'customer' | 'supplier', ownerId: number) => {
+    return bankAccounts.filter(account => 
+      account.ownerType === ownerType && account.ownerId === ownerId && account.isActive
+    );
+  };
+
+  const getBankAccountRevenue = (bankAccountId: number) => {
+    return salesOrders
+      .filter(order => order.bankAccountId === bankAccountId)
+      .reduce((total, order) => total + order.totalAmount, 0);
+  };
+
   // Utility functions
   const getLowStockProducts = () => {
     return products.filter(product => product.stockQuantity <= 20);
@@ -242,6 +285,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       invoices,
       customers,
       suppliers,
+      bankAccounts,
       updateProduct,
       addProduct,
       deleteProduct,
@@ -254,6 +298,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       addSupplier,
       updateSupplier,
       deleteSupplier,
+      addBankAccount,
+      updateBankAccount,
+      deleteBankAccount,
+      getBankAccountsByOwner,
+      getBankAccountRevenue,
       getLowStockProducts,
       getClientTotalDeals,
       getSupplierTotalDeals,

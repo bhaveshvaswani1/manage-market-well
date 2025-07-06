@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, ShoppingBag, CreditCard, Plus, Edit, DollarSign } from 'lucide-react';
@@ -7,33 +8,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
 import BankAccountForm from '../BankAccount/BankAccountForm';
-
-interface BankAccount {
-  id: number;
-  bankName: string;
-  accountNumber: string;
-  ifscCode: string;
-  accountType: string;
-}
+import type { BankAccount } from '../../utils/localDB';
 
 const ClientDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { customers, salesOrders, getClientTotalDeals } = useData();
-  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([
-    {
-      id: 1,
-      bankName: 'State Bank of India',
-      accountNumber: '****1234',
-      ifscCode: 'SBIN0001234',
-      accountType: 'Savings'
-    }
-  ]);
-
+  const { 
+    customers, 
+    salesOrders, 
+    getClientTotalDeals,
+    getBankAccountsByOwner,
+    addBankAccount,
+    updateBankAccount,
+    deleteBankAccount,
+    getBankAccountRevenue
+  } = useData();
+  
   const [showBankForm, setShowBankForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
 
   const client = customers.find(c => c.id === parseInt(id || '0'));
+  console.log('Client lookup:', { id, clients: customers, foundClient: client });
 
   if (!client) {
     return (
@@ -41,6 +36,7 @@ const ClientDetail = () => {
         <div className="text-center">
           <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Client not found</h3>
+          <p className="text-gray-600 mb-4">Client ID: {id}</p>
           <Link to="/clients" className="text-blue-600 hover:text-blue-700">
             Return to Clients
           </Link>
@@ -55,6 +51,7 @@ const ClientDetail = () => {
   );
 
   const totalDeals = getClientTotalDeals(client.name);
+  const clientBankAccounts = getBankAccountsByOwner('customer', client.id);
 
   const handleAddAccount = () => {
     setEditingAccount(null);
@@ -66,21 +63,25 @@ const ClientDetail = () => {
     setShowBankForm(true);
   };
 
-  const handleSaveAccount = (accountData: BankAccount) => {
+  const handleSaveAccount = (accountData: Omit<BankAccount, 'id'>) => {
     if (editingAccount) {
-      setBankAccounts(accounts => 
-        accounts.map(acc => 
-          acc.id === editingAccount.id ? { ...accountData, id: editingAccount.id } : acc
-        )
-      );
+      updateBankAccount(editingAccount.id, accountData);
     } else {
-      setBankAccounts(accounts => [
-        ...accounts, 
-        { ...accountData, id: Date.now() }
-      ]);
+      addBankAccount({
+        ...accountData,
+        ownerType: 'customer',
+        ownerId: client.id,
+        isActive: true
+      });
     }
     setShowBankForm(false);
     setEditingAccount(null);
+  };
+
+  const handleDeleteAccount = (accountId: number) => {
+    if (confirm('Are you sure you want to delete this bank account?')) {
+      deleteBankAccount(accountId);
+    }
   };
 
   const maskAccountNumber = (accountNumber: string) => {
@@ -139,7 +140,7 @@ const ClientDetail = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Bank Accounts</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{bankAccounts.length}</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{clientBankAccounts.length}</p>
               </div>
               <div className="p-3 rounded-lg bg-purple-100">
                 <CreditCard className="w-6 h-6 text-purple-600" />
@@ -192,7 +193,7 @@ const ClientDetail = () => {
           </TabsTrigger>
           <TabsTrigger value="accounts" className="flex items-center space-x-2">
             <CreditCard className="w-4 h-4" />
-            <span>Bank Accounts ({bankAccounts.length})</span>
+            <span>Bank Accounts ({clientBankAccounts.length})</span>
           </TabsTrigger>
         </TabsList>
 
@@ -270,7 +271,7 @@ const ClientDetail = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Bank Accounts</CardTitle>
-                  <CardDescription>Client's registered bank accounts</CardDescription>
+                  <CardDescription>Client's registered bank accounts and their performance</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleAddAccount}>
                   <Plus className="w-4 h-4 mr-2" />
@@ -280,30 +281,56 @@ const ClientDetail = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {bankAccounts.map((account) => (
-                  <div key={account.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium text-gray-900">{account.bankName}</h4>
-                      <Button variant="ghost" size="sm" onClick={() => handleEditAccount(account)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
+                {clientBankAccounts.map((account) => {
+                  const accountRevenue = getBankAccountRevenue(account.id);
+                  return (
+                    <div key={account.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-gray-900">{account.bankName}</h4>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-medium text-green-600">
+                            ${accountRevenue.toFixed(2)} revenue
+                          </span>
+                          <Button variant="ghost" size="sm" onClick={() => handleEditAccount(account)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <label className="text-gray-600">Account Number</label>
+                          <p className="font-medium">{maskAccountNumber(account.accountNumber)}</p>
+                        </div>
+                        <div>
+                          <label className="text-gray-600">IFSC Code</label>
+                          <p className="font-medium">{account.ifscCode}</p>
+                        </div>
+                        <div>
+                          <label className="text-gray-600">Account Type</label>
+                          <p className="font-medium">{account.accountType}</p>
+                        </div>
+                        <div>
+                          <label className="text-gray-600">Status</label>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            account.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {account.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <label className="text-gray-600">Account Number</label>
-                        <p className="font-medium">{maskAccountNumber(account.accountNumber)}</p>
-                      </div>
-                      <div>
-                        <label className="text-gray-600">IFSC Code</label>
-                        <p className="font-medium">{account.ifscCode}</p>
-                      </div>
-                      <div>
-                        <label className="text-gray-600">Account Type</label>
-                        <p className="font-medium">{account.accountType}</p>
-                      </div>
-                    </div>
+                  );
+                })}
+                {clientBankAccounts.length === 0 && (
+                  <div className="text-center py-8">
+                    <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500 mb-4">No bank accounts registered</p>
+                    <Button variant="outline" onClick={handleAddAccount}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add First Account
+                    </Button>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>

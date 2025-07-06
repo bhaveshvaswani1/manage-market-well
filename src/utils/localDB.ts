@@ -27,6 +27,7 @@ export interface SalesOrder {
   status: string;
   totalAmount: number;
   items: OrderItem[];
+  bankAccountId?: number;
 }
 
 export interface Invoice {
@@ -40,6 +41,7 @@ export interface Invoice {
   amount: number;
   status: 'Paid' | 'Pending' | 'Overdue';
   items: OrderItem[];
+  bankAccountId?: number;
 }
 
 export interface Customer {
@@ -62,12 +64,24 @@ export interface Supplier {
   suppliedProducts: string[];
 }
 
+export interface BankAccount {
+  id: number;
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+  accountType: string;
+  ownerType: 'customer' | 'supplier';
+  ownerId: number;
+  isActive: boolean;
+}
+
 export interface DatabaseSchema {
   products: Product[];
   salesOrders: SalesOrder[];
   invoices: Invoice[];
   customers: Customer[];
   suppliers: Supplier[];
+  bankAccounts: BankAccount[];
   lastUpdated: string;
 }
 
@@ -129,9 +143,62 @@ class LocalDatabase {
           supplier: 'Exotic Fragrances Ltd.',
         },
       ],
-      salesOrders: [],
+      salesOrders: [
+        {
+          id: 1,
+          orderNumber: 'SO-001-2024',
+          customerName: 'John Smith',
+          companyName: 'Smith Enterprises',
+          orderDate: '2024-06-15',
+          status: 'Delivered',
+          totalAmount: 156.50,
+          items: [
+            { productName: 'Lavender Incense Sticks', quantity: 5, price: 18.99 },
+            { productName: 'Rose Incense Sticks', quantity: 4, price: 15.00 }
+          ],
+          bankAccountId: 1
+        },
+        {
+          id: 2,
+          orderNumber: 'SO-002-2024',
+          customerName: 'Sarah Johnson',
+          companyName: 'Johnson & Associates',
+          orderDate: '2024-06-18',
+          status: 'Shipped',
+          totalAmount: 89.97,
+          items: [
+            { productName: 'Sandalwood Incense Sticks', quantity: 3, price: 22.99 }
+          ],
+          bankAccountId: 2
+        }
+      ],
       invoices: [],
-      customers: [],
+      customers: [
+        {
+          id: 1,
+          name: 'John Smith',
+          email: 'john@smithenterprises.com',
+          phone: '+1 (555) 123-4567',
+          company: 'Smith Enterprises',
+          address: '123 Business Ave, New York, NY 10001'
+        },
+        {
+          id: 2,
+          name: 'Sarah Johnson',
+          email: 'sarah@johnson-associates.com',
+          phone: '+1 (555) 234-5678',
+          company: 'Johnson & Associates',
+          address: '456 Commerce St, Los Angeles, CA 90210'
+        },
+        {
+          id: 3,
+          name: 'Mike Wilson',
+          email: 'mike@wilsontrading.com',
+          phone: '+1 (555) 345-6789',
+          company: 'Wilson Trading Co.',
+          address: '789 Trade Plaza, Chicago, IL 60601'
+        }
+      ],
       suppliers: [
         {
           id: 1,
@@ -162,6 +229,38 @@ class LocalDatabase {
           address: 'Bangalore, Karnataka, India',
           contactPerson: 'Amit Kumar',
           suppliedProducts: ['Phool', 'Sandalwood', 'Jasmine']
+        }
+      ],
+      bankAccounts: [
+        {
+          id: 1,
+          bankName: 'State Bank of India',
+          accountNumber: '12345678901234',
+          ifscCode: 'SBIN0001234',
+          accountType: 'Savings',
+          ownerType: 'customer',
+          ownerId: 1,
+          isActive: true
+        },
+        {
+          id: 2,
+          bankName: 'HDFC Bank',
+          accountNumber: '56789012345678',
+          ifscCode: 'HDFC0001234',
+          accountType: 'Current',
+          ownerType: 'customer',
+          ownerId: 2,
+          isActive: true
+        },
+        {
+          id: 3,
+          bankName: 'ICICI Bank',
+          accountNumber: '98765432109876',
+          ifscCode: 'ICIC0001234',
+          accountType: 'Current',
+          ownerType: 'supplier',
+          ownerId: 1,
+          isActive: true
         }
       ],
       lastUpdated: new Date().toISOString()
