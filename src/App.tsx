@@ -16,6 +16,8 @@ import ClientDetail from "./components/Clients/ClientDetail";
 import SupplierDetail from "./components/Suppliers/SupplierDetail";
 import SalesOrderDetail from "./components/SalesOrders/SalesOrderDetail";
 import BankAccountDetail from "./components/BankAccount/BankAccountDetail";
+import TransactionList from "./components/Transactions/TransactionList";
+import TransactionDetail from "./components/Transactions/TransactionDetail";
 import NotFound from "./pages/NotFound";
 import { DataProvider } from "./contexts/DataContext";
 
@@ -42,6 +44,8 @@ const App = () => (
                 <Route path="/sales-orders/:id" element={<SalesOrderDetail />} />
                 <Route path="/invoices" element={<Invoices />} />
                 <Route path="/bank-accounts/:id" element={<BankAccountDetail />} />
+                <Route path="/transactions" element={<TransactionList />} />
+                <Route path="/transactions/:id" element={<TransactionDetail />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

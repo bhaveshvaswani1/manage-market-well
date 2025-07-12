@@ -1,4 +1,3 @@
-
 // Local database utility using localStorage
 export interface Product {
   id: number;
@@ -75,6 +74,22 @@ export interface BankAccount {
   isActive: boolean;
 }
 
+export interface Transaction {
+  id: number;
+  transactionNumber: string;
+  bankAccountId: number;
+  type: 'sale' | 'purchase' | 'transfer' | 'refund';
+  amount: number;
+  date: string;
+  description: string;
+  status: 'completed' | 'pending' | 'failed';
+  relatedOrderId?: number;
+  relatedInvoiceId?: number;
+  customerName?: string;
+  supplierName?: string;
+  reference?: string;
+}
+
 export interface DatabaseSchema {
   products: Product[];
   salesOrders: SalesOrder[];
@@ -82,6 +97,7 @@ export interface DatabaseSchema {
   customers: Customer[];
   suppliers: Supplier[];
   bankAccounts: BankAccount[];
+  transactions: Transaction[];
   lastUpdated: string;
 }
 
@@ -261,6 +277,58 @@ class LocalDatabase {
           ownerType: 'supplier',
           ownerId: 1,
           isActive: true
+        }
+      ],
+      transactions: [
+        {
+          id: 1,
+          transactionNumber: 'TXN-001-2024',
+          bankAccountId: 1,
+          type: 'sale',
+          amount: 156.50,
+          date: '2024-06-15',
+          description: 'Payment received for Order SO-001-2024',
+          status: 'completed',
+          relatedOrderId: 1,
+          customerName: 'John Smith',
+          reference: 'SO-001-2024'
+        },
+        {
+          id: 2,
+          transactionNumber: 'TXN-002-2024',
+          bankAccountId: 2,
+          type: 'sale',
+          amount: 89.97,
+          date: '2024-06-18',
+          description: 'Payment received for Order SO-002-2024',
+          status: 'completed',
+          relatedOrderId: 2,
+          customerName: 'Sarah Johnson',
+          reference: 'SO-002-2024'
+        },
+        {
+          id: 3,
+          transactionNumber: 'TXN-003-2024',
+          bankAccountId: 1,
+          type: 'refund',
+          amount: -25.00,
+          date: '2024-06-20',
+          description: 'Refund processed for damaged goods',
+          status: 'completed',
+          customerName: 'John Smith',
+          reference: 'REF-001-2024'
+        },
+        {
+          id: 4,
+          transactionNumber: 'TXN-004-2024',
+          bankAccountId: 3,
+          type: 'purchase',
+          amount: -500.00,
+          date: '2024-06-22',
+          description: 'Payment to supplier for inventory',
+          status: 'completed',
+          supplierName: 'Aromatic Supplies Co.',
+          reference: 'PO-001-2024'
         }
       ],
       lastUpdated: new Date().toISOString()

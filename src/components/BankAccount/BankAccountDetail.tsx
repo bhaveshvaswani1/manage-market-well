@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, DollarSign, TrendingUp, Calendar, User, Building2 } from 'lucide-react';
+import { ArrowLeft, CreditCard, DollarSign, TrendingUp, Calendar, User, Building2, Receipt, ArrowDownLeft, ArrowUpRight, Eye } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Badge } from '../ui/badge';
 
 const BankAccountDetail = () => {
   const { id } = useParams();
@@ -14,7 +15,9 @@ const BankAccountDetail = () => {
     salesOrders, 
     customers, 
     suppliers,
-    getBankAccountRevenue 
+    transactions,
+    getBankAccountRevenue,
+    getBankAccountTransactionSummary 
   } = useData();
 
   const account = bankAccounts.find(acc => acc.id === parseInt(id || '0'));
@@ -37,7 +40,8 @@ const BankAccountDetail = () => {
     ? customers.find(c => c.id === account.ownerId)
     : suppliers.find(s => s.id === account.ownerId);
 
-  const accountTransactions = salesOrders.filter(order => order.bankAccountId === account.id);
+  const accountTransactions = transactions.filter(txn => txn.bankAccountId === account.id);
+  const transactionSummary = getBankAccountTransactionSummary(account.id);
   const totalRevenue = getBankAccountRevenue(account.id);
   const transactionCount = accountTransactions.length;
   const averageTransaction = transactionCount > 0 ? totalRevenue / transactionCount : 0;
@@ -45,6 +49,32 @@ const BankAccountDetail = () => {
   const maskAccountNumber = (accountNumber: string) => {
     if (accountNumber.length <= 4) return accountNumber;
     return '****' + accountNumber.slice(-4);
+  };
+
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'sale':
+        return <ArrowDownLeft className="w-4 h-4 text-green-600" />;
+      case 'purchase':
+        return <ArrowUpRight className="w-4 h-4 text-red-600" />;
+      case 'refund':
+        return <ArrowUpRight className="w-4 h-4 text-orange-600" />;
+      default:
+        return <Receipt className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'failed':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   return (
@@ -69,11 +99,25 @@ const BankAccountDetail = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">${totalRevenue.toFixed(2)}</p>
+                <p className="text-sm font-medium text-gray-600">Total Inflow</p>
+                <p className="text-3xl font-bold text-green-600">${transactionSummary.totalInflow.toFixed(2)}</p>
               </div>
               <div className="p-3 rounded-lg bg-green-100">
-                <DollarSign className="w-6 h-6 text-green-600" />
+                <ArrowDownLeft className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Outflow</p>
+                <p className="text-3xl font-bold text-red-600">${transactionSummary.totalOutflow.toFixed(2)}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-red-100">
+                <ArrowUpRight className="w-6 h-6 text-red-600" />
               </div>
             </div>
           </CardContent>
@@ -83,41 +127,27 @@ const BankAccountDetail = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Transactions</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{transactionCount}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-blue-100">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Avg Transaction</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">${averageTransaction.toFixed(2)}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-purple-100">
-                <Calendar className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Status</p>
-                <p className={`text-lg font-bold mt-1 ${account.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                  {account.isActive ? 'Active' : 'Inactive'}
+                <p className="text-sm font-medium text-gray-600">Net Balance</p>
+                <p className={`text-3xl font-bold ${transactionSummary.netBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ${transactionSummary.netBalance.toFixed(2)}
                 </p>
               </div>
-              <div className="p-3 rounded-lg bg-gray-100">
-                <CreditCard className="w-6 h-6 text-gray-600" />
+              <div className="p-3 rounded-lg bg-blue-100">
+                <DollarSign className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Transactions</p>
+                <p className="text-3xl font-bold text-gray-900">{transactionCount}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-purple-100">
+                <Receipt className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </CardContent>
@@ -190,44 +220,44 @@ const BankAccountDetail = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order Number</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>Transaction #</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Description</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {accountTransactions.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.orderNumber}</TableCell>
+                {accountTransactions.map((transaction) => (
+                  <TableRow key={transaction.id}>
+                    <TableCell className="font-medium">{transaction.transactionNumber}</TableCell>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{order.customerName}</div>
-                        <div className="text-sm text-gray-500">{order.companyName}</div>
+                      <div className="flex items-center space-x-2">
+                        {getTransactionIcon(transaction.type)}
+                        <span className="capitalize">{transaction.type}</span>
                       </div>
                     </TableCell>
-                    <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
-                    <TableCell className="font-semibold text-green-600">
-                      ${order.totalAmount.toFixed(2)}
-                    </TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                        order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
-                        order.status === 'Confirmed' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {order.status}
+                      <span className={`font-semibold ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {transaction.amount >= 0 ? '+' : ''}${transaction.amount.toFixed(2)}
                       </span>
                     </TableCell>
+                    <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(transaction.status)}>
+                        {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{transaction.description}</TableCell>
                     <TableCell>
                       <Link
-                        to={`/sales-orders/${order.id}`}
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        to={`/transactions/${transaction.id}`}
+                        className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
                       >
-                        View Order
+                        <Eye className="w-4 h-4" />
+                        <span>View</span>
                       </Link>
                     </TableCell>
                   </TableRow>
@@ -236,7 +266,7 @@ const BankAccountDetail = () => {
             </Table>
           ) : (
             <div className="text-center py-8">
-              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <Receipt className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No transactions found for this account</p>
             </div>
           )}

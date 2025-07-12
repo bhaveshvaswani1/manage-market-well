@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { localDB, type Product, type SalesOrder, type Invoice, type Customer, type Supplier, type BankAccount, type OrderItem } from '../utils/localDB';
+import { localDB, type Product, type SalesOrder, type Invoice, type Customer, type Supplier, type BankAccount, type OrderItem, type Transaction } from '../utils/localDB';
 
 interface DataContextType {
   products: Product[];
@@ -31,6 +31,17 @@ interface DataContextType {
   exportData: () => void;
   importData: (file: File) => Promise<void>;
   clearAllData: () => void;
+  transactions: Transaction[];
+  addTransaction: (transaction: Omit<Transaction, 'id' | 'transactionNumber'>) => void;
+  updateTransaction: (id: number, updates: Partial<Transaction>) => void;
+  deleteTransaction: (id: number) => void;
+  getTransactionsByBankAccount: (bankAccountId: number) => Transaction[];
+  getBankAccountTransactionSummary: (bankAccountId: number) => {
+    totalInflow: number;
+    totalOutflow: number;
+    netBalance: number;
+    transactionCount: number;
+  };
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -50,6 +61,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   // Load data from local database on component mount
   useEffect(() => {
@@ -61,6 +73,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCustomers(dbData.customers);
     setSuppliers(dbData.suppliers);
     setBankAccounts(dbData.bankAccounts || []);
+    setTransactions(dbData.transactions || []);
   }, []);
 
   // Product operations
@@ -278,6 +291,57 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSuppliers(dbData.suppliers);
   };
 
+  // Transaction operations
+  const addTransaction = (transactionData: Omit<Transaction, 'id' | 'transactionNumber'>) => {
+    const newTransactionNumber = `TXN-${String(transactions.length + 1).padStart(3, '0')}-2024`;
+    const newTransaction = {
+      ...transactionData,
+      id: Date.now(),
+      transactionNumber: newTransactionNumber,
+    };
+
+    const updatedTransactions = [...transactions, newTransaction];
+    setTransactions(updatedTransactions);
+    localDB.updateTable('transactions', updatedTransactions);
+  };
+
+  const updateTransaction = (id: number, updates: Partial<Transaction>) => {
+    const updatedTransactions = transactions.map(transaction => 
+      transaction.id === id ? { ...transaction, ...updates } : transaction
+    );
+    setTransactions(updatedTransactions);
+    localDB.updateTable('transactions', updatedTransactions);
+  };
+
+  const deleteTransaction = (id: number) => {
+    const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
+    setTransactions(updatedTransactions);
+    localDB.updateTable('transactions', updatedTransactions);
+  };
+
+  const getTransactionsByBankAccount = (bankAccountId: number) => {
+    return transactions.filter(transaction => transaction.bankAccountId === bankAccountId);
+  };
+
+  const getBankAccountTransactionSummary = (bankAccountId: number) => {
+    const accountTransactions = getTransactionsByBankAccount(bankAccountId);
+    
+    const totalInflow = accountTransactions
+      .filter(t => t.amount > 0)
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const totalOutflow = Math.abs(accountTransactions
+      .filter(t => t.amount < 0)
+      .reduce((sum, t) => sum + t.amount, 0));
+    
+    return {
+      totalInflow,
+      totalOutflow,
+      netBalance: totalInflow - totalOutflow,
+      transactionCount: accountTransactions.length
+    };
+  };
+
   return (
     <DataContext.Provider value={{
       products,
@@ -309,6 +373,12 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       exportData,
       importData,
       clearAllData,
+      transactions,
+      addTransaction,
+      updateTransaction,
+      deleteTransaction,
+      getTransactionsByBankAccount,
+      getBankAccountTransactionSummary,
     }}>
       {children}
     </DataContext.Provider>
