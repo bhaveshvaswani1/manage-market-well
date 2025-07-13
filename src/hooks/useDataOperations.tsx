@@ -1,5 +1,5 @@
 
-import { localDB, type Product } from '../utils/localDB';
+import { localDB, type Product, type SalesOrder } from '../utils/localDB';
 import { useCustomers } from './useCustomers';
 import { useSuppliers } from './useSuppliers';
 import { useProducts } from './useProducts';

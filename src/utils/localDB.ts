@@ -341,8 +341,21 @@ class LocalDatabase {
       const storedData = localStorage.getItem(this.dbKey);
       if (storedData) {
         const parsedData = JSON.parse(storedData);
-        console.log('Data loaded from local database:', parsedData);
-        return parsedData;
+        
+        // Ensure all required fields exist, merge with defaults if needed
+        const defaultData = this.getDefaultData();
+        const mergedData = {
+          ...defaultData,
+          ...parsedData,
+          // Ensure arrays exist
+          customers: parsedData.customers || defaultData.customers,
+          suppliers: parsedData.suppliers || defaultData.suppliers,
+          bankAccounts: parsedData.bankAccounts || defaultData.bankAccounts,
+          transactions: parsedData.transactions || defaultData.transactions,
+        };
+        
+        console.log('Data loaded from local database:', mergedData);
+        return mergedData;
       }
     } catch (error) {
       console.error('Error loading data from localStorage:', error);
@@ -351,6 +364,7 @@ class LocalDatabase {
     // Return default data if no stored data or error
     const defaultData = this.getDefaultData();
     this.saveData(defaultData);
+    console.log('Using default data:', defaultData);
     return defaultData;
   }
 
