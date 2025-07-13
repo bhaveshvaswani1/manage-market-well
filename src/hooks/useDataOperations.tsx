@@ -35,6 +35,8 @@ export const useDataOperations = () => {
   };
 
   const addSalesOrderWithInvoice = (orderData: Omit<SalesOrder, 'id' | 'orderNumber'>) => {
+    console.log('Creating sales order with invoice:', orderData);
+    
     // Update product stock quantities
     orderData.items.forEach(item => {
       const product = products.find(p => p.name === item.productName);
@@ -45,11 +47,13 @@ export const useDataOperations = () => {
       }
     });
 
-    // Add the sales order
+    // Add the sales order first
     addSalesOrder(orderData);
 
-    // Auto-generate invoice
+    // Generate the order number that will be used (same logic as in useSalesOrders)
     const newOrderNumber = `SO-${String(salesOrders.length + 1).padStart(3, '0')}-2024`;
+    
+    // Auto-generate invoice with the same order number
     const newInvoice = {
       customerName: orderData.customerName,
       companyName: orderData.companyName,
@@ -59,8 +63,10 @@ export const useDataOperations = () => {
       amount: orderData.totalAmount,
       status: 'Pending' as const,
       items: orderData.items,
+      bankAccountId: orderData.bankAccountId,
     };
 
+    console.log('Creating invoice:', newInvoice);
     addInvoice(newInvoice);
   };
 
