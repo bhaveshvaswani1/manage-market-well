@@ -1,4 +1,3 @@
-
 import { localDB, type Product, type SalesOrder } from '../utils/localDB';
 import { useCustomers } from './useCustomers';
 import { useSuppliers } from './useSuppliers';
@@ -37,7 +36,7 @@ export const useDataOperations = () => {
   const addSalesOrderWithInvoice = (orderData: Omit<SalesOrder, 'id' | 'orderNumber'>) => {
     console.log('Creating sales order with invoice:', orderData);
     
-    // Update product stock quantities
+    // Update product stock quantities first
     orderData.items.forEach(item => {
       const product = products.find(p => p.name === item.productName);
       if (product) {
@@ -47,13 +46,13 @@ export const useDataOperations = () => {
       }
     });
 
-    // Add the sales order first
-    addSalesOrder(orderData);
-
-    // Generate the order number that will be used (same logic as in useSalesOrders)
+    // Generate the order number that will be used (use current length before adding)
     const newOrderNumber = `SO-${String(salesOrders.length + 1).padStart(3, '0')}-2024`;
     
-    // Auto-generate invoice with the same order number
+    // Add the sales order first
+    addSalesOrder(orderData);
+    
+    // Auto-generate invoice with the same order number immediately
     const newInvoice = {
       customerName: orderData.customerName,
       companyName: orderData.companyName,
@@ -67,7 +66,11 @@ export const useDataOperations = () => {
     };
 
     console.log('Creating invoice:', newInvoice);
-    addInvoice(newInvoice);
+    
+    // Use setTimeout to ensure the sales order is added to state before creating invoice
+    setTimeout(() => {
+      addInvoice(newInvoice);
+    }, 100);
   };
 
   const exportData = () => {
