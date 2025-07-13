@@ -1,3 +1,4 @@
+
 // Local database utility using localStorage
 export interface Product {
   id: number;
@@ -342,16 +343,36 @@ class LocalDatabase {
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         
-        // Ensure all required fields exist, merge with defaults if needed
+        // Get default data for comparison
         const defaultData = this.getDefaultData();
+        
+        // Check if essential data is missing or empty
+        const needsReset = !parsedData.customers || 
+                          parsedData.customers.length === 0 || 
+                          !Array.isArray(parsedData.customers) ||
+                          !parsedData.suppliers || 
+                          !Array.isArray(parsedData.suppliers) ||
+                          !parsedData.bankAccounts || 
+                          !Array.isArray(parsedData.bankAccounts);
+        
+        if (needsReset) {
+          console.log('Data incomplete, resetting to defaults:', parsedData);
+          this.saveData(defaultData);
+          return defaultData;
+        }
+        
+        // Ensure all required fields exist, merge with defaults if needed
         const mergedData = {
           ...defaultData,
           ...parsedData,
-          // Ensure arrays exist
-          customers: parsedData.customers || defaultData.customers,
-          suppliers: parsedData.suppliers || defaultData.suppliers,
-          bankAccounts: parsedData.bankAccounts || defaultData.bankAccounts,
-          transactions: parsedData.transactions || defaultData.transactions,
+          // Ensure arrays exist and have data
+          products: (parsedData.products && parsedData.products.length > 0) ? parsedData.products : defaultData.products,
+          customers: (parsedData.customers && parsedData.customers.length > 0) ? parsedData.customers : defaultData.customers,
+          suppliers: (parsedData.suppliers && parsedData.suppliers.length > 0) ? parsedData.suppliers : defaultData.suppliers,
+          bankAccounts: (parsedData.bankAccounts && parsedData.bankAccounts.length > 0) ? parsedData.bankAccounts : defaultData.bankAccounts,
+          transactions: (parsedData.transactions && parsedData.transactions.length > 0) ? parsedData.transactions : defaultData.transactions,
+          salesOrders: parsedData.salesOrders || defaultData.salesOrders,
+          invoices: parsedData.invoices || defaultData.invoices,
         };
         
         console.log('Data loaded from local database:', mergedData);
@@ -386,10 +407,17 @@ class LocalDatabase {
     this.saveData(currentData);
   }
 
-  // Clear all data
+  // Clear all data and reset to defaults
   clearData(): void {
     localStorage.removeItem(this.dbKey);
     console.log('Local database cleared');
+  }
+
+  // Reset to default data (useful for fixing corrupted data)
+  resetToDefaults(): void {
+    const defaultData = this.getDefaultData();
+    this.saveData(defaultData);
+    console.log('Database reset to defaults');
   }
 
   // Export data as JSON file

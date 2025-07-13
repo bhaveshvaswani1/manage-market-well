@@ -8,7 +8,8 @@ export const useCustomers = () => {
   // Load customers from database
   const loadCustomers = () => {
     const dbData = localDB.loadData();
-    setCustomers(dbData.customers);
+    console.log('Loading customers from DB:', dbData.customers);
+    setCustomers(dbData.customers || []);
   };
 
   useEffect(() => {
