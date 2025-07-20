@@ -69,6 +69,11 @@ export const useDataOperations = () => {
     
     // Create invoice immediately after sales order
     addInvoice(newInvoice);
+    
+    // Force reload of all data to ensure UI updates
+    loadSalesOrders();
+    loadInvoices();
+    loadProducts();
   };
 
   const exportData = () => {
