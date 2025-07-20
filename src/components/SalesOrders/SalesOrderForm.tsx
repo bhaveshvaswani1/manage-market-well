@@ -17,6 +17,7 @@ interface SalesOrder {
   status: string;
   items: OrderItem[];
   totalAmount?: number;
+  bankAccountId?: number;
 }
 
 interface SalesOrderFormProps {
@@ -33,6 +34,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
     dueDate: order?.dueDate || '',
     status: order?.status || 'Pending',
     items: order?.items || [{ productName: '', quantity: 1, price: 0 }],
+    bankAccountId: order?.bankAccountId || '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -43,6 +45,12 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
     { name: 'Sarah Johnson', company: 'Johnson & Associates' },
     { name: 'Mike Wilson', company: 'Wilson Trading Co.' },
     { name: 'Emma Davis', company: 'Davis Retail Solutions' },
+  ];
+
+  const bankAccounts = [
+    { id: 1, bankName: 'State Bank of India', accountNumber: '12345678901234' },
+    { id: 2, bankName: 'HDFC Bank', accountNumber: '56789012345678' },
+    { id: 3, bankName: 'ICICI Bank', accountNumber: '98765432109876' },
   ];
 
   // Updated products - only incense sticks
@@ -129,6 +137,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
     if (!formData.orderDate) newErrors.orderDate = 'Order date is required';
     if (!formData.dueDate) newErrors.dueDate = 'Due date is required';
     if (!formData.status) newErrors.status = 'Status is required';
+    if (!formData.bankAccountId) newErrors.bankAccountId = 'Bank account is required';
 
     // Validate that due date is after order date
     if (formData.orderDate && formData.dueDate && formData.dueDate < formData.orderDate) {
@@ -151,6 +160,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
     if (validateForm()) {
       onSave({
         ...formData,
+        bankAccountId: parseInt(formData.bankAccountId.toString()),
         totalAmount: calculateTotal(),
         items: formData.items.map(item => ({
           ...item,
@@ -185,8 +195,8 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Order Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-4">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="lg:col-span-5">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Information</h3>
             </div>
 
@@ -261,6 +271,28 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({ order, onSave, onCancel
                 ))}
               </select>
               {errors.status && <p className="text-red-600 text-sm mt-1">{errors.status}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Bank Account *
+              </label>
+              <select
+                name="bankAccountId"
+                value={formData.bankAccountId}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  errors.bankAccountId ? 'border-red-300' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select bank account</option>
+                {bankAccounts.map(account => (
+                  <option key={account.id} value={account.id}>
+                    {account.bankName} - {account.accountNumber}
+                  </option>
+                ))}
+              </select>
+              {errors.bankAccountId && <p className="text-red-600 text-sm mt-1">{errors.bankAccountId}</p>}
             </div>
           </div>
 

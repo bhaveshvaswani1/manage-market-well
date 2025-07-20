@@ -49,10 +49,10 @@ export const useDataOperations = () => {
     // Generate the order number that will be used (use current length before adding)
     const newOrderNumber = `SO-${String(salesOrders.length + 1).padStart(3, '0')}-2024`;
     
-    // Add the sales order first
+    // Add the sales order first and wait for it to complete
     addSalesOrder(orderData);
     
-    // Auto-generate invoice with the same order number immediately
+    // Auto-generate invoice with the same order number
     const newInvoice = {
       customerName: orderData.customerName,
       companyName: orderData.companyName,
@@ -67,10 +67,15 @@ export const useDataOperations = () => {
 
     console.log('Creating invoice:', newInvoice);
     
-    // Use setTimeout to ensure the sales order is added to state before creating invoice
+    // Create invoice immediately after sales order
+    addInvoice(newInvoice);
+    
+    // Reload data to ensure UI is updated
     setTimeout(() => {
-      addInvoice(newInvoice);
-    }, 100);
+      loadSalesOrders();
+      loadInvoices();
+      loadProducts();
+    }, 50);
   };
 
   const exportData = () => {
