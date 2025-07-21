@@ -38,6 +38,7 @@ interface DataContextType {
   getLowStockProducts: () => Product[];
   getClientTotalDeals: (clientName: string) => number;
   getSupplierTotalDeals: (supplierName: string) => number;
+  addSalesOrderWithInvoice: (orderData: any) => void;
   exportData: () => void;
   exportDataAsCSV: () => void;
   importData: (file: File) => Promise<void>;
@@ -126,6 +127,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       getBankAccountTransactionSummary: transactionHook.getBankAccountTransactionSummary,
 
       // Data management operations
+      addSalesOrderWithInvoice: dataOperationsHook.addSalesOrderWithInvoice,
       exportData: dataOperationsHook.exportData,
       exportDataAsCSV: dataOperationsHook.exportDataAsCSV,
       importData: dataOperationsHook.importData,

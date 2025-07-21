@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
 import { Plus, Search, Eye, Edit, FileText, ShoppingCart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SalesOrderForm from './SalesOrderForm';
 import { useData } from '../../contexts/DataContext';
 
 const SalesOrderList = () => {
-  const { salesOrders, addSalesOrder } = useData();
+  const { salesOrders, addSalesOrderWithInvoice } = useData();
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,7 +37,9 @@ const SalesOrderList = () => {
       // Handle editing existing order logic would go here
       console.log('Edit order functionality not yet implemented');
     } else {
-      addSalesOrder(orderData);
+      addSalesOrderWithInvoice(orderData);
+      // Navigate to invoices page after creating order
+      navigate('/invoices');
     }
     setShowForm(false);
     setEditingOrder(null);
