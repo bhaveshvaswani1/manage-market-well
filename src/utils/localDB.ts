@@ -432,6 +432,49 @@ class LocalDatabase {
     link.click();
   }
 
+  // Export data as CSV files (one file per table)
+  exportDataAsCSV(): void {
+    const data = this.loadData();
+    const date = new Date().toISOString().split('T')[0];
+    
+    // Helper function to convert array of objects to CSV
+    const arrayToCSV = (arr: any[], filename: string) => {
+      if (!arr || arr.length === 0) return;
+      
+      const headers = Object.keys(arr[0]);
+      const csvContent = [
+        headers.join(','),
+        ...arr.map(row => 
+          headers.map(header => {
+            const value = row[header];
+            // Handle arrays and objects by converting to string
+            const processedValue = Array.isArray(value) ? 
+              `"${value.join('; ')}"` : 
+              typeof value === 'object' ? 
+                `"${JSON.stringify(value)}"` : 
+                `"${String(value).replace(/"/g, '""')}"`;
+            return processedValue;
+          }).join(',')
+        )
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${filename}-${date}.csv`;
+      link.click();
+    };
+
+    // Export each table as separate CSV
+    arrayToCSV(data.products, 'products');
+    arrayToCSV(data.salesOrders, 'sales-orders');
+    arrayToCSV(data.invoices, 'invoices');
+    arrayToCSV(data.customers, 'customers');
+    arrayToCSV(data.suppliers, 'suppliers');
+    arrayToCSV(data.bankAccounts, 'bank-accounts');
+    arrayToCSV(data.transactions, 'transactions');
+  }
+
   // Import data from JSON file
   importData(file: File): Promise<void> {
     return new Promise((resolve, reject) => {

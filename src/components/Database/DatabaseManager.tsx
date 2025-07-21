@@ -4,7 +4,7 @@ import { Download, Upload, Trash2, Database } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 
 const DatabaseManager = () => {
-  const { exportData, importData, clearAllData } = useData();
+  const { exportData, exportDataAsCSV, importData, clearAllData } = useData();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,14 +42,23 @@ const DatabaseManager = () => {
         Manage your local database. All changes are automatically saved to your browser's local storage.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Export Data */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Export JSON */}
         <button
           onClick={exportData}
           className="flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
         >
           <Download className="w-4 h-4 mr-2" />
-          Export Data
+          Export JSON
+        </button>
+
+        {/* Export CSV */}
+        <button
+          onClick={exportDataAsCSV}
+          className="flex items-center justify-center px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Export CSV
         </button>
 
         {/* Import Data */}

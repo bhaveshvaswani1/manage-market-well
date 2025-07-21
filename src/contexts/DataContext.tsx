@@ -39,6 +39,7 @@ interface DataContextType {
   getClientTotalDeals: (clientName: string) => number;
   getSupplierTotalDeals: (supplierName: string) => number;
   exportData: () => void;
+  exportDataAsCSV: () => void;
   importData: (file: File) => Promise<void>;
   clearAllData: () => void;
   addTransaction: (transaction: Omit<Transaction, 'id' | 'transactionNumber'>) => void;
@@ -126,6 +127,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Data management operations
       exportData: dataOperationsHook.exportData,
+      exportDataAsCSV: dataOperationsHook.exportDataAsCSV,
       importData: dataOperationsHook.importData,
       clearAllData: dataOperationsHook.clearAllData,
     }}>

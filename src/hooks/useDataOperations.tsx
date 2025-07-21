@@ -75,6 +75,10 @@ export const useDataOperations = () => {
     localDB.exportData();
   };
 
+  const exportDataAsCSV = () => {
+    localDB.exportDataAsCSV();
+  };
+
   const importData = async (file: File) => {
     await localDB.importData(file);
     // Reload all data after import
@@ -103,6 +107,7 @@ export const useDataOperations = () => {
     getSupplierTotalDeals,
     addSalesOrderWithInvoice,
     exportData,
+    exportDataAsCSV,
     importData,
     clearAllData,
   };
