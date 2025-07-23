@@ -7,14 +7,26 @@ import { useTransactions } from './useTransactions';
 import { useSalesOrders } from './useSalesOrders';
 import { useInvoices } from './useInvoices';
 
-export const useDataOperations = () => {
-  const { products, updateProduct, loadProducts } = useProducts();
+export const useDataOperations = (hooks?: {
+  productsHook?: any;
+  salesOrdersHook?: any;
+  invoicesHook?: any;
+}) => {
+  const defaultProductsHook = useProducts();
+  const defaultSalesOrdersHook = useSalesOrders();
+  const defaultInvoicesHook = useInvoices();
+  
+  const productsHook = hooks?.productsHook || defaultProductsHook;
+  const salesOrdersHook = hooks?.salesOrdersHook || defaultSalesOrdersHook;
+  const invoicesHook = hooks?.invoicesHook || defaultInvoicesHook;
+  
+  const { products, updateProduct, loadProducts } = productsHook;
   const { suppliers, loadSuppliers } = useSuppliers();
   const { loadCustomers } = useCustomers();
   const { loadBankAccounts } = useBankAccounts();
   const { loadTransactions } = useTransactions();
-  const { salesOrders, addSalesOrder, loadSalesOrders } = useSalesOrders();
-  const { addInvoice, loadInvoices } = useInvoices();
+  const { salesOrders, addSalesOrder, loadSalesOrders } = salesOrdersHook;
+  const { addInvoice, loadInvoices } = invoicesHook;
 
   const getSupplierTotalDeals = (supplierName: string) => {
     // Calculate based on products supplied by this supplier

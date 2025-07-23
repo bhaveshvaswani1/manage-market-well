@@ -74,7 +74,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const transactionHook = useTransactions();
   const salesOrderHook = useSalesOrders();
   const invoiceHook = useInvoices();
-  const dataOperationsHook = useDataOperations();
+  const dataOperationsHook = useDataOperations({
+    productsHook: productHook,
+    salesOrdersHook: salesOrderHook,
+    invoicesHook: invoiceHook,
+  });
 
   return (
     <DataContext.Provider value={{
