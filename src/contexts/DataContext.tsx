@@ -1,13 +1,13 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { type Product, type SalesOrder, type Invoice, type Customer, type Supplier, type BankAccount, type Transaction } from '../utils/localDB';
-import { useCustomers } from '../hooks/useCustomers';
-import { useSuppliers } from '../hooks/useSuppliers';
-import { useProducts } from '../hooks/useProducts';
-import { useBankAccounts } from '../hooks/useBankAccounts';
-import { useTransactions } from '../hooks/useTransactions';
-import { useSalesOrders } from '../hooks/useSalesOrders';
-import { useInvoices } from '../hooks/useInvoices';
+import { useAPICustomers } from '../hooks/useAPICustomers';
+import { useAPISuppliers } from '../hooks/useAPISuppliers';
+import { useAPIProducts } from '../hooks/useAPIProducts';
+import { useAPIBankAccounts } from '../hooks/useAPIBankAccounts';
+import { useAPITransactions } from '../hooks/useAPITransactions';
+import { useAPISalesOrders } from '../hooks/useAPISalesOrders';
+import { useAPIInvoices } from '../hooks/useAPIInvoices';
 import { useDataOperations } from '../hooks/useDataOperations';
 
 interface DataContextType {
@@ -66,69 +66,69 @@ export const useData = () => {
 };
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Use individual hooks
-  const customerHook = useCustomers();
-  const supplierHook = useSuppliers();
-  const productHook = useProducts();
-  const bankAccountHook = useBankAccounts();
-  const transactionHook = useTransactions();
-  const salesOrderHook = useSalesOrders();
-  const invoiceHook = useInvoices();
+  // Initialize all hooks with API versions
+  const customersHook = useAPICustomers();
+  const suppliersHook = useAPISuppliers();
+  const productsHook = useAPIProducts();
+  const bankAccountsHook = useAPIBankAccounts();
+  const transactionsHook = useAPITransactions();
+  const salesOrdersHook = useAPISalesOrders();
+  const invoicesHook = useAPIInvoices();
   const dataOperationsHook = useDataOperations({
-    productsHook: productHook,
-    salesOrdersHook: salesOrderHook,
-    invoicesHook: invoiceHook,
+    productsHook: productsHook,
+    salesOrdersHook: salesOrdersHook,
+    invoicesHook: invoicesHook,
   });
 
   return (
     <DataContext.Provider value={{
       // Data arrays
-      products: productHook.products,
-      salesOrders: salesOrderHook.salesOrders,
-      invoices: invoiceHook.invoices,
-      customers: customerHook.customers,
-      suppliers: supplierHook.suppliers,
-      bankAccounts: bankAccountHook.bankAccounts,
-      transactions: transactionHook.transactions,
+      products: productsHook.products,
+      salesOrders: salesOrdersHook.salesOrders,
+      invoices: invoicesHook.invoices,
+      customers: customersHook.customers,
+      suppliers: suppliersHook.suppliers,
+      bankAccounts: bankAccountsHook.bankAccounts,
+      transactions: transactionsHook.transactions,
 
       // Product operations
-      updateProduct: productHook.updateProduct,
-      addProduct: productHook.addProduct,
-      deleteProduct: productHook.deleteProduct,
-      getLowStockProducts: productHook.getLowStockProducts,
+      updateProduct: productsHook.updateProduct,
+      addProduct: productsHook.addProduct,
+      deleteProduct: productsHook.deleteProduct,
+      getLowStockProducts: productsHook.getLowStockProducts,
 
       // Sales order operations
       addSalesOrder: dataOperationsHook.addSalesOrderWithInvoice,
-      getBankAccountRevenue: salesOrderHook.getBankAccountRevenue,
-      getClientTotalDeals: salesOrderHook.getClientTotalDeals,
+      getBankAccountRevenue: salesOrdersHook.getBankAccountRevenue,
+      getClientTotalDeals: salesOrdersHook.getClientTotalDeals,
 
       // Invoice operations
-      addInvoice: invoiceHook.addInvoice,
-      updateInvoiceStatus: invoiceHook.updateInvoiceStatus,
+      addInvoice: invoicesHook.addInvoice,
+      updateInvoiceStatus: invoicesHook.updateInvoiceStatus,
 
       // Customer operations
-      addCustomer: customerHook.addCustomer,
-      updateCustomer: customerHook.updateCustomer,
-      deleteCustomer: customerHook.deleteCustomer,
+      addCustomer: customersHook.addCustomer,
+      updateCustomer: customersHook.updateCustomer,
+      deleteCustomer: customersHook.deleteCustomer,
 
       // Supplier operations
-      addSupplier: supplierHook.addSupplier,
-      updateSupplier: supplierHook.updateSupplier,
-      deleteSupplier: supplierHook.deleteSupplier,
+      addSupplier: suppliersHook.addSupplier,
+      updateSupplier: suppliersHook.updateSupplier,
+      deleteSupplier: suppliersHook.deleteSupplier,
       getSupplierTotalDeals: dataOperationsHook.getSupplierTotalDeals,
 
       // Bank account operations
-      addBankAccount: bankAccountHook.addBankAccount,
-      updateBankAccount: bankAccountHook.updateBankAccount,
-      deleteBankAccount: bankAccountHook.deleteBankAccount,
-      getBankAccountsByOwner: bankAccountHook.getBankAccountsByOwner,
+      addBankAccount: bankAccountsHook.addBankAccount,
+      updateBankAccount: bankAccountsHook.updateBankAccount,
+      deleteBankAccount: bankAccountsHook.deleteBankAccount,
+      getBankAccountsByOwner: bankAccountsHook.getBankAccountsByOwner,
 
       // Transaction operations
-      addTransaction: transactionHook.addTransaction,
-      updateTransaction: transactionHook.updateTransaction,
-      deleteTransaction: transactionHook.deleteTransaction,
-      getTransactionsByBankAccount: transactionHook.getTransactionsByBankAccount,
-      getBankAccountTransactionSummary: transactionHook.getBankAccountTransactionSummary,
+      addTransaction: transactionsHook.addTransaction,
+      updateTransaction: transactionsHook.updateTransaction,
+      deleteTransaction: transactionsHook.deleteTransaction,
+      getTransactionsByBankAccount: transactionsHook.getTransactionsByBankAccount,
+      getBankAccountTransactionSummary: transactionsHook.getBankAccountTransactionSummary,
 
       // Data management operations
       addSalesOrderWithInvoice: dataOperationsHook.addSalesOrderWithInvoice,

@@ -31,7 +31,7 @@ class ApiService {
     return this.fetchData('/products');
   }
 
-  async addProduct(product: any) {
+  async createProduct(product: any) {
     return this.fetchData('/products', {
       method: 'POST',
       body: JSON.stringify(product),
@@ -56,7 +56,7 @@ class ApiService {
     return this.fetchData('/customers');
   }
 
-  async addCustomer(customer: any) {
+  async createCustomer(customer: any) {
     return this.fetchData('/customers', {
       method: 'POST',
       body: JSON.stringify(customer),
@@ -81,7 +81,7 @@ class ApiService {
     return this.fetchData('/suppliers');
   }
 
-  async addSupplier(supplier: any) {
+  async createSupplier(supplier: any) {
     return this.fetchData('/suppliers', {
       method: 'POST',
       body: JSON.stringify(supplier),
@@ -106,7 +106,7 @@ class ApiService {
     return this.fetchData('/sales-orders');
   }
 
-  async addSalesOrder(order: any) {
+  async createSalesOrder(order: any) {
     return this.fetchData('/sales-orders', {
       method: 'POST',
       body: JSON.stringify(order),
@@ -118,7 +118,7 @@ class ApiService {
     return this.fetchData('/invoices');
   }
 
-  async addInvoice(invoice: any) {
+  async createInvoice(invoice: any) {
     return this.fetchData('/invoices', {
       method: 'POST',
       body: JSON.stringify(invoice),
@@ -137,10 +137,23 @@ class ApiService {
     return this.fetchData('/bank-accounts');
   }
 
-  async addBankAccount(account: any) {
+  async createBankAccount(account: any) {
     return this.fetchData('/bank-accounts', {
       method: 'POST',
       body: JSON.stringify(account),
+    });
+  }
+
+  async updateBankAccount(id: number, updates: any) {
+    return this.fetchData(`/bank-accounts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteBankAccount(id: number) {
+    return this.fetchData(`/bank-accounts/${id}`, {
+      method: 'DELETE',
     });
   }
 
@@ -149,10 +162,23 @@ class ApiService {
     return this.fetchData('/transactions');
   }
 
-  async addTransaction(transaction: any) {
+  async createTransaction(transaction: any) {
     return this.fetchData('/transactions', {
       method: 'POST',
       body: JSON.stringify(transaction),
+    });
+  }
+
+  async updateTransaction(id: number, updates: any) {
+    return this.fetchData(`/transactions/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteTransaction(id: number) {
+    return this.fetchData(`/transactions/${id}`, {
+      method: 'DELETE',
     });
   }
 }
