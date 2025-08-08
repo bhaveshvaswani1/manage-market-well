@@ -27,157 +27,157 @@ class ApiService {
   }
 
   // Products
-  async getProducts() {
-    return this.fetchData('/products');
+  async getProducts(): Promise<any[]> {
+    return this.fetchData<any[]>('/products');
   }
 
-  async createProduct(product: any) {
-    return this.fetchData('/products', {
+  async createProduct(product: any): Promise<any> {
+    return this.fetchData<any>('/products', {
       method: 'POST',
       body: JSON.stringify(product),
     });
   }
 
-  async updateProduct(id: number, updates: any) {
-    return this.fetchData(`/products/${id}`, {
+  async updateProduct(id: number, updates: any): Promise<any> {
+    return this.fetchData<any>(`/products/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   }
 
-  async deleteProduct(id: number) {
-    return this.fetchData(`/products/${id}`, {
+  async deleteProduct(id: number): Promise<void> {
+    return this.fetchData<void>(`/products/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Customers
-  async getCustomers() {
-    return this.fetchData('/customers');
+  async getCustomers(): Promise<any[]> {
+    return this.fetchData<any[]>('/customers');
   }
 
-  async createCustomer(customer: any) {
-    return this.fetchData('/customers', {
+  async createCustomer(customer: any): Promise<any> {
+    return this.fetchData<any>('/customers', {
       method: 'POST',
       body: JSON.stringify(customer),
     });
   }
 
-  async updateCustomer(id: number, updates: any) {
-    return this.fetchData(`/customers/${id}`, {
+  async updateCustomer(id: number, updates: any): Promise<any> {
+    return this.fetchData<any>(`/customers/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   }
 
-  async deleteCustomer(id: number) {
-    return this.fetchData(`/customers/${id}`, {
+  async deleteCustomer(id: number): Promise<void> {
+    return this.fetchData<void>(`/customers/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Suppliers
-  async getSuppliers() {
-    return this.fetchData('/suppliers');
+  async getSuppliers(): Promise<any[]> {
+    return this.fetchData<any[]>('/suppliers');
   }
 
-  async createSupplier(supplier: any) {
-    return this.fetchData('/suppliers', {
+  async createSupplier(supplier: any): Promise<any> {
+    return this.fetchData<any>('/suppliers', {
       method: 'POST',
       body: JSON.stringify(supplier),
     });
   }
 
-  async updateSupplier(id: number, updates: any) {
-    return this.fetchData(`/suppliers/${id}`, {
+  async updateSupplier(id: number, updates: any): Promise<any> {
+    return this.fetchData<any>(`/suppliers/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   }
 
-  async deleteSupplier(id: number) {
-    return this.fetchData(`/suppliers/${id}`, {
+  async deleteSupplier(id: number): Promise<void> {
+    return this.fetchData<void>(`/suppliers/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Sales Orders
-  async getSalesOrders() {
-    return this.fetchData('/sales-orders');
+  async getSalesOrders(): Promise<any[]> {
+    return this.fetchData<any[]>('/sales-orders');
   }
 
-  async createSalesOrder(order: any) {
-    return this.fetchData('/sales-orders', {
+  async createSalesOrder(order: any): Promise<any> {
+    return this.fetchData<any>('/sales-orders', {
       method: 'POST',
       body: JSON.stringify(order),
     });
   }
 
   // Invoices
-  async getInvoices() {
-    return this.fetchData('/invoices');
+  async getInvoices(): Promise<any[]> {
+    return this.fetchData<any[]>('/invoices');
   }
 
-  async createInvoice(invoice: any) {
-    return this.fetchData('/invoices', {
+  async createInvoice(invoice: any): Promise<any> {
+    return this.fetchData<any>('/invoices', {
       method: 'POST',
       body: JSON.stringify(invoice),
     });
   }
 
-  async updateInvoice(id: number, updates: any) {
-    return this.fetchData(`/invoices/${id}`, {
+  async updateInvoice(id: number, updates: any): Promise<any> {
+    return this.fetchData<any>(`/invoices/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   }
 
   // Bank Accounts
-  async getBankAccounts() {
-    return this.fetchData('/bank-accounts');
+  async getBankAccounts(): Promise<any[]> {
+    return this.fetchData<any[]>('/bank-accounts');
   }
 
-  async createBankAccount(account: any) {
-    return this.fetchData('/bank-accounts', {
+  async createBankAccount(account: any): Promise<any> {
+    return this.fetchData<any>('/bank-accounts', {
       method: 'POST',
       body: JSON.stringify(account),
     });
   }
 
-  async updateBankAccount(id: number, updates: any) {
-    return this.fetchData(`/bank-accounts/${id}`, {
+  async updateBankAccount(id: number, updates: any): Promise<any> {
+    return this.fetchData<any>(`/bank-accounts/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   }
 
-  async deleteBankAccount(id: number) {
-    return this.fetchData(`/bank-accounts/${id}`, {
+  async deleteBankAccount(id: number): Promise<void> {
+    return this.fetchData<void>(`/bank-accounts/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Transactions
-  async getTransactions() {
-    return this.fetchData('/transactions');
+  async getTransactions(): Promise<any[]> {
+    return this.fetchData<any[]>('/transactions');
   }
 
-  async createTransaction(transaction: any) {
-    return this.fetchData('/transactions', {
+  async createTransaction(transaction: any): Promise<any> {
+    return this.fetchData<any>('/transactions', {
       method: 'POST',
       body: JSON.stringify(transaction),
     });
   }
 
-  async updateTransaction(id: number, updates: any) {
-    return this.fetchData(`/transactions/${id}`, {
+  async updateTransaction(id: number, updates: any): Promise<any> {
+    return this.fetchData<any>(`/transactions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   }
 
-  async deleteTransaction(id: number) {
-    return this.fetchData(`/transactions/${id}`, {
+  async deleteTransaction(id: number): Promise<void> {
+    return this.fetchData<void>(`/transactions/${id}`, {
       method: 'DELETE',
     });
   }
